@@ -1,0 +1,10 @@
+<select name="" id="">
+    <option value="">---Select---</option>
+    {% if route %}
+    {% for i in route %}
+    <option value="{{i.id}}">{{i.route.route_name}}</option>
+    {% endfor %}
+    {% else %}
+    <option value="">No Data</option>
+    {% endif %}
+</select>

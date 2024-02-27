@@ -1,0 +1,62 @@
+<html>
+<head>
+    <title>
+        My Profile
+    </title>
+</head>
+
+<body>
+    <form method="post">
+        <center>
+            <h1>My Profile</h1>
+            <table border="1" rules="none">
+                <tr>
+                    <td colspan="2"><img src={{user.user_photo}}></td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>{{user.user_name}}</td>
+                </tr>
+
+                <tr>
+                    <td>Email</td>
+                    <td>{{user.user_email}}</td>
+                </tr>
+                <tr>
+                    <td>Contact</td>
+                    <td>{{user.user_contact}}</td>
+                </tr>
+                <tr>
+                    <td>DOB</td>
+                    <td>{{user.user_dob}}</td>
+                </tr>
+                <tr>
+                    <td>Gender</td>
+                    <td>{{user.user_gender}}</td>
+                </tr>
+                <tr>
+                    <td>Address</td>
+                    <td>{{user.user_address}}</td>
+                </tr>
+
+                <tr>
+                    <td>Place</td>
+                    <td>{{pdata.0.place.place_name}}</td>
+                </tr>
+                <tr>
+                    <td>District</td>
+                    <td>{{pdata.0.district.district_name}}</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>{{pdata.0.state.state_name}}</td>
+                </tr>
+            </table>
+            <a href="{% url 'webuser:editprofile' %}">Edit profile</a><br>
+            <a href="{% url 'webuser:changepassword' %}">Change Password</a> 
+          
+
+        </center>
+    </form>
+</body>
+</html>

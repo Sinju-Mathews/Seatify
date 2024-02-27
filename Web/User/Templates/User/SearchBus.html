@@ -1,0 +1,123 @@
+<html>
+<head>
+    <title>
+        Search
+    </title>
+    </head>
+
+<body>
+<form method="post">
+	{% csrf_token %}
+<center>
+<table border="1" rules="none">
+
+	<tr>
+		<td>From  :</td><br>
+		<td> State: 
+			<select name="ddlstate1" id="ddlstate1">
+				<option>--select--</option>
+				{% for i in state %}
+				<option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+				{% endfor %}
+		  </select>	      
+               &nbsp; &nbsp;District:
+			   <select name="ddldist1" id="ddldist1">
+					 <option>--select--</option>
+			   </select>
+			   &nbsp; &nbsp;place:	      
+			  <select name="ddlplace1" id="ddlplace1" >
+					<option>--select--</option>
+			  </select>	      
+	
+		</td>
+   </tr>
+   <tr>
+	<td>To :</td>
+	<td> State: 
+		<select name="ddlstate2" id="ddlstate2">
+			<option>--select--</option>
+			{% for i in state %}
+			<option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+			{% endfor %}
+	  </select>	      
+		   &nbsp; &nbsp;District:
+		   <select name="ddldist2" id="ddldist2">
+				 <option>--select--</option>
+		   </select>
+		   &nbsp; &nbsp;place:	      
+		  <select name="ddlplace2" id="ddlplace2" >
+				<option>--select--</option>
+		  </select>	      
+	</td>
+</tr>
+<br>
+<tr>
+    <td colspan="2" align="center">
+           <input type="submit" name="btnsubmit" value="Search">
+           <input type="reset"  name="btnreset"  value="Clear">
+        </td>
+   </tr>
+</table>
+<table>
+    <tr>
+        <th>{{route.route_name}}</th>
+    </tr>
+</table>
+</center>
+</form>
+</body>
+</html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $("#ddlstate1").change(function () {
+        var sid = $(this).val();
+        var ur = "{% url 'webGuest:AjaxDistrict' %}"
+        $.ajax({
+            url: ur,
+            data: { sid: sid, },
+            success: function (data) {
+                $("#ddldist1").html(data);
+            },
+        });
+    });
+
+
+    $("#ddldist1").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'webGuest:AjaxPlace' %}"
+        $.ajax({
+            url: ur,
+            data: { did: did, },
+            success: function (data) {
+                $("#ddlplace1").html(data);
+            },
+        });
+    });
+
+    $("#ddlstate2").change(function () {
+        var sid = $(this).val();
+        var ur = "{% url 'webGuest:AjaxDistrict' %}"
+        $.ajax({
+            url: ur,
+            data: { sid: sid, },
+            success: function (data) {
+                $("#ddldist2").html(data);
+            },
+        });
+    });
+
+    $("#ddldist2").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'webGuest:AjaxPlace' %}"
+        $.ajax({
+            url: ur,
+            data: { did: did, },
+            success: function (data) {
+                $("#ddlplace2").html(data);
+            },
+        });
+    });
+
+    
+</script>

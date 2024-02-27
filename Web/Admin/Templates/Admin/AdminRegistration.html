@@ -1,0 +1,53 @@
+<html>
+    <head>
+    <title>
+        Admin Registration
+    </title>
+    </head>
+
+<body>
+
+
+
+<form method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+<center>
+    <h1>Admin Registration</h1>
+<table border="1" rules="all">
+
+	<tr>
+ 		<td>Name</td>
+ 		<td><input type="text" name="txtname" placeholder="Enter Name"  required="required"></td>
+	</tr>
+    <tr>
+		<td>Contact</td>
+		<td><input type="text" name="txtcontact" placeholder="Enter Contact" pattern="([0-9]{10,10})" required="required"></td>
+   </tr>
+   <tr>
+    <td>Email</td>
+    <td><input type="email" name="txtemail" placeholder="Enter Email"  required="required"></td>
+</tr>
+<tr>
+    <td>Password</td>
+    <td><input type="password" name="txtpwd"></td>
+</tr>
+<tr>
+    <td colspan="2" align="center">
+           <input type="submit" name="btnsubmit" value="Submit">
+           <input type="reset"  name="btnreset"  value="Cancel">
+    </td>
+</tr>
+
+
+</table>
+</center>
+</form>
+{% if msg %}
+<script>
+alert("{{msg}}")
+</script>
+{% endif %}
+
+</body>
+
+</html>

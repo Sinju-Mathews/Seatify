@@ -1,0 +1,60 @@
+<html>
+<head>
+    <title>
+        State
+    </title>
+    </head>
+
+<body>
+<form method="post">
+{% csrf_token %}
+<center>
+<table border="1" rules="none">
+
+	<tr>
+ 		<td>State Name</td>
+ 		<td><input type="text" name="txtsname" placeholder="Enter State Name" value="{{ state.state_name }}"  required="required"></td>
+	</tr>
+
+<tr>
+ 	<td colspan="2" align="center">
+    		<input type="submit" name="btnsubmit" value="Insert">
+    		<input type="reset"  name="btnreset"  value="Cancel">
+ 		</td>
+	</tr>
+</table>
+<table border="1">
+<tr>
+	<td>
+		Sl.no.
+	</td>
+	<td>
+		State Name
+	</td>
+	<td>
+		Action
+	</td>
+</tr>
+{% for i in data %}
+<tr>
+	<td>
+    {{forloop.counter}}
+	</td>
+	<td>
+    {{i.s_data.state_name}}
+	</td>
+	<td>
+		<a href="{% url 'webAdmin:del_state' i.sid %}">delete</a>
+		
+		<a href="{% url 'webAdmin:edit_state' i.sid %}">edit</a>
+
+	</td>
+</tr>
+{% endfor %}
+</table>
+</center>
+</form>
+
+</body>
+
+</html>

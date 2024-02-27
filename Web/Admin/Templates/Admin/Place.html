@@ -1,0 +1,104 @@
+<html>
+<head>
+    <title>
+    Place
+    </title>
+    </head>
+
+<body>
+<form method="post">
+{% csrf_token %}
+<center>
+<table border="1" rules="none">
+      <tr>
+            <td>State Name</td>
+            <td>
+                    <select name="ddlstate" id="ddlstate">
+                        <option>--select--</option>
+                        {% for i in sdata %}
+                        <option value="{{i.sid}}" >{{i.s_data.state_name}}</option>
+                        {% endfor %}
+                    </select>	      
+             </td>
+       </tr>
+       <tr>
+            <td>District Name</td>
+            <td>
+                <select name="ddldist" id="ddldist">
+                    <option value="">--Select---</option>
+                </select>      
+             </td>
+       </tr>
+
+	<tr>
+ 		<td>Place Name</td>
+ 		<td><input type="text" name="txtpname" placeholder="Enter Place Name" required="required"></td>
+	</tr>
+    
+
+<tr>
+ 	<td colspan="2" align="center">
+    		<input type="submit" name="btnsubmit" value="Insert">
+    		<input type="reset"  name="btnreset"  value="Cancel">
+ 		</td>
+	</tr>
+</table>
+
+<table border="1">
+      <tr>
+          <td>
+              Sl.no.
+          </td>
+          <td>
+              Place Name
+         </td>
+          <td>
+              District Name
+          </td>
+          <td>state</td>
+          <td>
+              Action
+          </td>
+      </tr>
+      {% for i in pdata %}
+      <tr>
+          <td>
+          {{forloop.counter}}
+          </td>
+          <td>
+            {{i.p_data.place_name}}
+         </td>
+          <td>
+          {{i.district.district_name}}
+          </td>
+          <td>
+              {{i.state.state_name}}
+              </td>
+          <td>
+              <a href="{% url 'webAdmin:del_place' i.pid %}">Delete</a>
+  
+             
+          </td>
+      </tr>
+      {% endfor %}
+      </table>
+</center>
+</form>
+
+</body>
+
+</html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $("#ddlstate").change(function () {
+        var sid = $(this).val();
+        var ur = "{% url 'webGuest:AjaxDistrict' %}"
+        $.ajax({
+            url: ur,
+            data: { sid: sid, },
+            success: function (data) {
+                $("#ddldist").html(data);
+            },
+        });
+    });
+</script>

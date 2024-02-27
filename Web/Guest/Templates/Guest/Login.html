@@ -1,0 +1,40 @@
+<html>
+
+<head>
+    <title>
+        Login
+    </title>
+</head>
+
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <center>
+            <table border="1" rules="none">
+
+                <tr>
+                    <td>Email</td>
+                    <td><input type="email" name="txtsname" placeholder="Enter email" required="required"></td>
+                </tr>
+                <tr>
+                    <td>Password</td>
+                    <td><input type="password" name="txtpwd"></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="submit" name="btnsubmit" value="Login">
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </form>
+    {% if msg %}
+    <script>
+        alert("{{msg}}")
+        window.location = "{% url 'webGuest:Login' %}"
+    </script>
+    {% endif %}
+</body>
+
+</html>

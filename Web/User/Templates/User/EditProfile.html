@@ -1,0 +1,145 @@
+
+<html>
+    <head>
+    <title>
+       Edit Profile
+    </title>
+    </head>
+
+<body>
+
+
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+<center>
+    <h2>Edit Profile</h2>
+<table border="1" rules="all">
+    <tr>
+        <td colspan="2">
+            <label for="photo_data">
+                <img src="{{user.user_photo}}" alt="">
+            </label>
+            <input type="file" name="photo_data" id="photo_data" style="display: none;" >
+        </td>
+    </tr>
+
+	<tr>
+ 		<td>Name</td>
+ 		<td><input type="text" name="txtname" placeholder="Enter Name" value="{{user.user_name}}"  required="required"></td>
+	</tr>
+
+	<tr>
+ 		<td>Gender</td>
+ 		<td>
+            {% if user.user_gender == "Female" %}
+            <input type="radio" name="gender" value="Female" checked >Female
+            {% else %}
+            <input type="radio" name="gender" value="Female" >Female
+            {% endif %}
+            {% if user.user_gender == "Male" %}
+            <input type="radio" name="gender" value="Male" checked >Male
+            {% else %}
+            <input type="radio" name="gender" value="Male">Male
+            {% endif %}
+      		
+  		</td>
+	</tr>
+    <tr>
+        <td>Contact</td>
+        <td><input type="text" name="txtcontact" placeholder="Enter Contact"  value="{{user.user_contact}}" pattern="([0-9]{10,10})" required="required"></td>
+   </tr>
+   <tr>
+        <td>Email</td>
+        <td><input type="email" name="txtemail" placeholder="Enter Email"  value="{{user.user_email}}"  required="required" disabled></td>
+   </tr>
+
+   <tr>
+        <td>Date of Birth</td>
+        <td><input type="date" name="txtdob"  value="{{user.user_dob}}" ></td>
+   </tr>
+
+    <tr>
+        <td>Address</td>
+        <td>
+               <textarea name="txtaddress" rows="6" cols="20">{{user.user_address}}</textarea>
+       </td>
+   </tr>
+   
+   <tr>
+    <td>State</td>
+    <td>
+        <select name="ddlstate" id="ddlstate" >
+            <option>--select--</option>
+            {% for i in sdata %}
+            {% if i.sid == pdata.0.district.state_id %}
+              <option value="{{i.sid}}" selected>{{i.s_data.state_name}}</option>
+              {% else %}
+              <option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+              {% endif %}
+            {% endfor %}
+        </select>	          
+     </td>
+</tr>
+
+
+	<tr>
+ 		<td>District</td>
+ 		<td>
+     			<select name="ddldist" id="ddldist">
+       				<option value="{{pdata.0.place.district_id}}">{{pdata.0.district.district_name}}</option>
+     			</select>	      
+  		</td>
+	</tr>
+
+
+	<tr>
+        <td>Place</td>
+        <td>
+                <select name="ddlplace" id="ddlplace">
+                      <option value="{{user.place_id}}"> {{pdata.0.place.place_name}}</option>
+                </select>	      
+         </td>
+   </tr>
+	
+   <tr>
+    <td colspan="2" align="center">
+           <input type="submit" name="btnsubmit" value="Update">
+           <input type="reset"  name="btnreset"  value="Cancel">
+    </td>
+</tr>
+
+
+</table>
+</center>
+</form>
+</body>
+</html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $("#ddlstate").change(function () {
+        var sid = $(this).val();
+        var ur = "{% url 'webGuest:AjaxDistrict' %}"
+        $.ajax({
+            url: ur,
+            data: { sid: sid, },
+            success: function (data) {
+                $("#ddldist").html(data);
+            },
+        });
+    });
+</script>
+
+<script>
+    $("#ddldist").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'webGuest:AjaxPlace' %}"
+        $.ajax({
+            url: ur,
+            data: { did: did, },
+            success: function (data) {
+                $("#ddlplace").html(data);
+            },
+        });
+    });
+</script>

@@ -1,0 +1,153 @@
+<html>
+<head>
+    <title>
+        Stop
+    </title>
+    </head>
+
+<body>
+<form method="post">
+    {% csrf_token %}
+<center>
+<table border="1" rules="none">
+    <tr>
+        
+	<tr>
+ 		<td>route Name</td>
+        <td><select name="ddlroute" id="ddlroute">
+            <option>--select--</option>
+            {% for i in route %}
+            <option value="{{i.rid}}">{{i.r_data.route_name}}</option>
+            {% endfor %}
+      </select>	  </td>
+ 		  
+	</tr>
+    
+   <tr>
+    <td>Stop Number</td>
+    <td><input type="text" name="stopno" placeholder="stop Number"  required="required"></td>
+</tr>
+
+<tr>
+    <td>Stop Name</td>
+    <td> State: 
+        <select name="ddlstate1" id="ddlstate1">
+            <option>--select--</option>
+            {% for i in state %}
+            <option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+            {% endfor %}
+      </select>	      
+           &nbsp; &nbsp;District:
+           <select name="ddldist1" id="ddldist1">
+                 <option>--select--</option>
+           </select>
+           &nbsp; &nbsp;place:	      
+          <select name="ddlplace1" id="ddlplace1">
+                <option>--select--</option>
+          </select>	      
+
+    </td>
+</tr>
+<tr>
+    <td>Stop Time</td>
+    <td><input type="text" name="timestop" placeholder="in minutes" required="required"></td>
+</tr>
+<tr>
+    <td>Stop distance</td>
+    <td><input type="text" name="kmstop" placeholder="in km (kilometers)" required="required"></td>
+</tr>
+<tr>
+ 	<td colspan="2" align="center">
+    		<input type="submit" name="btnsubmit" value="Insert">
+    		<input type="reset"  name="btnreset"  value="Cancel">
+ 		</td>
+	</tr>
+</table>
+<br>
+<table border="1">
+	<tr>
+		<td>
+			Sl.no.
+		</td>
+		<td>
+			Stop Name
+		</td>
+		<td>
+			Route
+		</td>
+		<td>
+			Stop Number
+		</td>
+		<td>
+			Time
+		</td>
+		<td>
+			distance (km)
+		</td>
+		<td>
+			Action
+		</td>
+	</tr>
+	{% for i in stop %}
+	<tr>
+		<td>
+		{{forloop.counter}}
+		</td>
+		<td>
+		{{i.stopname.place_name}}
+		</td>
+		<td>
+			{{i.route.route_name}}
+		</td>
+		<td>
+			{{i.stop_data.stop_number}}
+		</td>
+        <td>
+			{{i.stop_data.stop_time}}
+		</td>
+		<td>
+			{{i.stop_data.stop_distance}}
+		</td>
+		
+		<td>
+			<a href="{% url 'webAdmin:del_stop' i.stid %}">Delete</a>
+		</td>
+	</tr>
+	{% endfor %}
+	</table>
+</center>
+</form>
+
+</body>
+
+</html>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $("#ddlstate1").change(function () {
+        var sid = $(this).val();
+        var ur = "{% url 'webGuest:AjaxDistrict' %}"
+        $.ajax({
+            url: ur,
+            data: { sid: sid, },
+            success: function (data) {
+                $("#ddldist1").html(data);
+            },
+        });
+    });
+</script>
+
+<script>
+    $("#ddldist1").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'webGuest:AjaxPlace' %}"
+        $.ajax({
+            url: ur,
+            data: { did: did, },
+            success: function (data) {
+                $("#ddlplace1").html(data);
+            },
+        });
+    });
+</script>

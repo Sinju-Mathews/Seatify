@@ -1,0 +1,54 @@
+<html>
+<head>
+    <title>
+        My Profile
+    </title>
+</head>
+
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <center>
+            <table border="1" rules="none">
+                <tr>
+                    <td colspan="2"><img src={{bus.bs_logo}}></td>
+                </tr>
+                <tr>
+                    <td>Center Name</td>
+                    <td>{{bus.bs_name}}</td>
+                </tr>
+
+                <tr>
+                    <td>Email</td>
+                    <td>{{bus.bs_email}}</td>
+                </tr>
+                <tr>
+                    <td>Contact</td>
+                    <td>{{bus.bs_contact}}</td>
+                </tr>
+              
+                <tr>
+                    <td>Address</td>
+                    <td>{{bus.bs_address}}</td>
+                </tr>
+
+                <tr>
+                    <td>Place</td>
+                    <td>{{pdata.0.place.place_name}}</td>
+                </tr>
+                <tr>
+                    <td>District</td>
+                    <td>{{pdata.0.district.district_name}}</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>{{pdata.0.state.state_name}}</td>
+                </tr>
+            </table>
+            <a href="{% url 'webBusService:editprofile' %}">Edit profile</a><br>
+            <a href="{% url 'webBusService:changepassword' %}">change password</a>
+       
+        </center>
+    </form>
+</body>
+</html>

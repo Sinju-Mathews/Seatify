@@ -1,0 +1,128 @@
+
+<html>
+    <head>
+    <title>
+        Company Registration
+    </title>
+    </head>
+
+<body>
+
+
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<center>
+<table border="1" rules="all">
+
+	<tr>
+ 		<td>Service Center Name</td>
+ 		<td><input type="text" name="txtname" placeholder="Enter Name"  required="required"></td>
+	</tr>
+
+    <tr>
+        <td>Address</td>
+        <td>
+               <textarea name="txtaddress" rows="6" cols="20"></textarea>
+       </td>
+   </tr>
+   <tr>
+    <td>State</td>
+    <td>
+            <select name="ddlstate" id="ddlstate">
+                  <option>--select--</option>
+				  {% for i in state %}
+				  <option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+				  {% endfor %}
+            </select>	      
+     </td>
+</tr>
+
+
+	<tr>
+ 		<td>District</td>
+ 		<td>
+     			<select name="ddldist" id="ddldist">
+       				<option>--select--</option>
+     			</select>	      
+  		</td>
+	</tr>
+
+
+	<tr>
+        <td>Place</td>
+        <td>
+                <select name="ddlplace" id="ddlplace">
+                      <option>--select--</option>
+                </select>	      
+         </td>
+   </tr>	
+
+	<tr>
+ 		<td>Contact</td>
+ 		<td><input type="text" name="txtcontact" placeholder="Enter Contact" pattern="([0-9]{10,10})" required="required"></td>
+	</tr>
+	<tr>
+ 		<td>Email</td>
+ 		<td><input type="email" name="txtemail" placeholder="Enter Email"  required="required"></td>
+	</tr>
+
+
+    <tr>
+        <td>logo</td>
+        <td><input type="file" name="filelogo" ></td>
+   </tr>
+
+   <tr>
+    <td>Proof</td>
+    <td><input type="file" name="fileproof" ></td>
+    </tr>
+
+	<tr>
+ 		<td>Password</td>
+ 		<td><input type="password" name="txtpwd"></td>
+	</tr>
+
+
+	<tr>
+ 		<td colspan="2" align="center">
+    			<input type="submit" name="btnsubmit" value="Submit">
+    			<input type="reset"  name="btnreset"  value="Cancel">
+ 		</td>
+	</tr>
+	
+
+</table>
+</center>
+</form>
+
+</body>
+
+</html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $("#ddlstate").change(function () {
+        var sid = $(this).val();
+        var ur = "{% url 'webGuest:AjaxDistrict' %}"
+        $.ajax({
+            url: ur,
+            data: { sid: sid, },
+            success: function (data) {
+                $("#ddldist").html(data);
+            },
+        });
+    });
+</script>
+
+<script>
+    $("#ddldist").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'webGuest:AjaxPlace' %}"
+        $.ajax({
+            url: ur,
+            data: { did: did, },
+            success: function (data) {
+                $("#ddlplace").html(data);
+            },
+        });
+    });
+</script>

@@ -1,0 +1,80 @@
+<html>
+<head>
+    <title>
+        District
+    </title>
+    </head>
+
+<body>
+<form method="post">
+<center>
+<table border="1" rules="none">
+{% csrf_token %}
+	<tr>
+        <td>State Name</td>
+        <td>
+                <select name="ddlstate">
+                    <option>--select--</option>
+                    {% for i in sdata %}
+                    {% if i.sid == district.state_id %}
+                      <option value="{{i.sid}}" selected>{{i.s_data.state_name}}</option>
+                      {% else %}
+                      <option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+                      {% endif %}
+                    {% endfor %}
+                </select>	      
+         </td>
+   </tr>
+
+	<tr>
+ 		<td>District Name</td>
+ 		<td><input type="text" name="txtdname" placeholder="Enter District Name" value="{{ district.district_name }}" required="required"></td>
+	</tr>
+
+<tr>
+ 	<td colspan="2" align="center">
+    		<input type="submit" name="btnsubmit" value="Insert">
+    		<input type="reset"  name="btnreset"  value="Cancel">
+ 		</td>
+	</tr>
+</table>
+
+<table border="1">
+    <tr>
+        <td>
+            Sl.no.
+        </td>
+        <td>
+            District Name
+        </td>
+        <td>state</td>
+        <td>
+            Action
+        </td>
+    </tr>
+    {% for i in ddata %}
+    <tr>
+        <td>
+        {{forloop.counter}}
+        </td>
+        <td>
+        {{i.d_data.district_name}}
+        </td>
+        <td>
+            {{i.state.state_name}}
+            </td>
+        <td>
+            <a href="{% url 'webAdmin:del_dist' i.did %}">Delete</a>
+            <a href="{% url 'webAdmin:edit_dist' i.did %}">Edit</a>
+
+           
+        </td>
+    </tr>
+    {% endfor %}
+    </table>
+</center>
+</form>
+
+</body>
+
+</html>

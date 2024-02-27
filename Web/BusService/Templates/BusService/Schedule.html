@@ -1,0 +1,192 @@
+<html>
+<head>
+    <title>
+        Schedule
+    </title>
+    </head>
+
+<body>
+<form method="post">
+	{% csrf_token %}
+<center>
+<table border="1" rules="none">
+
+	<tr>
+		<td>From </td>
+		<td> State: 
+			<select name="ddlstate1" id="ddlstate1">
+				<option>--select--</option>
+				{% for i in state %}
+				<option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+				{% endfor %}
+		  </select>	      
+               &nbsp; &nbsp;District:
+			   <select name="ddldist1" id="ddldist1">
+					 <option>--select--</option>
+			   </select>
+			   &nbsp; &nbsp;place:	      
+			  <select name="ddlplace1" id="ddlplace1" onchange="getRoute()">
+					<option>--select--</option>
+			  </select>	      
+	
+		</td>
+   </tr>
+   <tr>
+	<td>To </td>
+	<td> State: 
+		<select name="ddlstate2" id="ddlstate2">
+			<option>--select--</option>
+			{% for i in state %}
+			<option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+			{% endfor %}
+	  </select>	      
+		   &nbsp; &nbsp;District:
+		   <select name="ddldist2" id="ddldist2">
+				 <option>--select--</option>
+		   </select>
+		   &nbsp; &nbsp;place:	      
+		  <select name="ddlplace2" id="ddlplace2" onchange="getRoute()">
+				<option>--select--</option>
+		  </select>	      
+	</td>
+</tr>
+<tr>
+    <td>routes</td>
+    <td><select name="ddlroute" id="ddlroute">
+        <option>--select--</option>
+  </select>	      </td>
+</tr>
+<tr>
+    <td>bus Name </td>
+    <td><input type="text" name="txtbus" placeholder="Name of the bus"  required="required"></td>
+</tr>
+   <tr>
+ 		<td>Time Scheduled for</td>
+ 		<td><input type="time" name="txttime"   required="required"></td>
+	</tr>
+
+	
+
+
+<tr>
+ 	<td colspan="2" align="center">
+    		<input type="submit" name="btnsubmit" value="Insert">
+    		<input type="reset"  name="btnreset"  value="Cancel">
+ 		</td>
+	</tr>
+</table>
+<br>
+<table border="1">
+	<tr>
+		<td>
+			Sl.no.
+		</td>
+		<td>
+			Route name
+		</td>
+		<td>
+			bus name
+		</td>
+		
+		<td>
+			Time
+		</td>
+		
+		<td>
+			Action
+		</td>
+	</tr>
+	{% for i in schedule %}
+	<tr>
+		<td>
+		{{forloop.counter}}
+		</td>
+		<td>
+		{{i.route.route_name}}
+		</td>
+		<td>
+			{{i.sd_data.bus_name}}
+		</td>
+		<td>
+			{{i.sd_data.time_scheduled}}
+		</td>
+		
+		<td>
+			
+		</td>
+	</tr>
+	{% endfor %}
+	</table>
+</center>
+</form>
+
+</body>
+
+</html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $("#ddlstate1").change(function () {
+        var sid = $(this).val();
+        var ur = "{% url 'webGuest:AjaxDistrict' %}"
+        $.ajax({
+            url: ur,
+            data: { sid: sid, },
+            success: function (data) {
+                $("#ddldist1").html(data);
+            },
+        });
+    });
+
+
+    $("#ddldist1").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'webGuest:AjaxPlace' %}"
+        $.ajax({
+            url: ur,
+            data: { did: did, },
+            success: function (data) {
+                $("#ddlplace1").html(data);
+            },
+        });
+    });
+
+    $("#ddlstate2").change(function () {
+        var sid = $(this).val();
+        var ur = "{% url 'webGuest:AjaxDistrict' %}"
+        $.ajax({
+            url: ur,
+            data: { sid: sid, },
+            success: function (data) {
+                $("#ddldist2").html(data);
+            },
+        });
+    });
+
+    $("#ddldist2").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'webGuest:AjaxPlace' %}"
+        $.ajax({
+            url: ur,
+            data: { did: did, },
+            success: function (data) {
+                $("#ddlplace2").html(data);
+            },
+        });
+    });
+
+    function getRoute(){
+        var fromplace=document.getElementById('ddlplace1').value;
+        var toplace=document.getElementById('ddlplace2').value;
+        if (fromplace!= "" && toplace!=""){
+            var ur = "{% url 'webBusService:ajaxroute' %}"
+			$.ajax({
+				url: ur,
+				data: { from: fromplace,to: toplace,  },
+				success: function (data) {
+					$("#ddlroute").html(data);
+				},
+			});
+        }
+        
+    }
+</script>
