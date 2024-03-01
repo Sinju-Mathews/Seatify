@@ -8,4 +8,5 @@ urlpatterns = [
     path('changepassword/',views.changepassword,name="changepassword"),
     path('schedule/',views.Schedule,name="schedule"),
     path('ajaxroute/',views.ajaxroute,name="ajaxroute"),
+    path('bscomplaint/',views.bscomplaint,name="bscomplaint"),
 ]

@@ -115,3 +115,20 @@ def ajaxroute(request):
     for i in route:
         route_data.append({"route":i.to_dict(),"id":i.id})
     return render(request,"Guest/AjaxRoute.html",{"route":route_data})
+
+def bscomplaint(request):
+    id=request.session["bid"]
+
+    compdata=db.collection("tbl_complaints").where("bus_service_id", "==", request.session["bid"]).stream()
+    complist=[]
+    for i in compdata:
+        comp=i.to_dict()
+        complist.append({"comp_data":comp,"id":i.id})
+        
+    if request.method=="POST":
+        data={"complaint_title":request.POST.get("txtctitle")
+            ,"complaint_content":request.POST.get("txtccontent"),"bus_service_id":id,"user_id":0}
+        db.collection("tbl_complaints").add(data)
+        return redirect("webcenter:bscomplaint")
+    else:
+        return render(request,"Center/BSComplaints.html",{"data":complist})

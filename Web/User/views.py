@@ -86,37 +86,62 @@ def search(request):
         state=i.to_dict()
         stlist.append({"s_data":state,"sid":i.id})
 
-    # rtdata=db.collection("tbl_route").stream()
-    # rtlist=[]
-    # for i in rtdata:
-    #     route=i.to_dict()
-
-    # data=[]
-    # if request.method=="POST":
-    #     fromstop = db.collection("tbl_stop").where("stopname_id", "==", request.GET.get("ddlplace1")).get()
-    #     tostop = db.collection("tbl_stop").where("stopname_id", "==", request.GET.get("ddlplace2")).get()
-    #     stop=stop1+stop2
-    #     stop_data = []
-    #     for i in stop:
-    #         stop_data.append({"stop":i.to_dict(),"id":i.id})
-    #         print(stop_data)
     if request.method == "POST":
-        fs_id = ts_id = route = ""
+        fslist =[]
         from_stop = request.POST.get("ddlplace1")
         to_stop = request.POST.get("ddlplace2")
-        stop_from = db.collection("tbl_stop").where("stopname_id", "==", from_stop).stream()
-        for sf in stop_from:
+        stop_from_query = db.collection("tbl_stop").where("stopname_id", "==", from_stop).stream()
+        for sf in stop_from_query:
             fs = sf.to_dict()
-            fs_id = fs["route_id"]
-        stop_to = db.collection("tbl_stop").where("stopname_id", "==", to_stop).stream()
-        for sf in stop_to:
-            fs = sf.to_dict()
-            ts_id = fs["route_id"]
-        if fs_id == ts_id:
-            route = ts_id
-        print(route)
-        route_data = db.collection("tbl_route").document(route).get().to_dict()
-        print(route_data)
-        return render(request,"User/SearchBus.html",{"route":route_data})
+            fslist.append({"f_id":fs["route_id"], "fstop_no":fs["stop_number"]}) 
+            
+        print(fslist)
+        route_ids = [fs["f_id"] for fs in fslist]
+        stops_query = db.collection("tbl_stop").where("route_id", "in", route_ids).stream()
+
+        tolist=[]
+        for s in stops_query:
+            stops_data = s.to_dict()
+            print(stops_data,"unfiltered")
+            if stops_data["stopname_id"] == to_stop:
+                print(stops_data)
+                tolist.append({"t_id":stops_data["route_id"], "tstop_no":stops_data["stop_number"]})
+
+        final_routes = []
+        for fr in fslist:
+            for to in tolist:
+                if to['t_id'] == fr['f_id'] and to['tstop_no'] > fr['fstop_no']:
+                    final_routes.append(to)
+            print(final_routes)
+
+        ids_set = set()
+        for route in final_routes:
+             ids_set.add(route["t_id"])
+        ids = list(ids_set)
+
+        routelist = []
+        for route_id in ids:
+            route = db.collection("tbl_route").document(route_id).get().to_dict()
+            routelist.append({"route_data": route})
+
+        return render(request,"User/SearchBus.html", {"route":routelist})
     else:
         return render(request,"User/SearchBus.html",{"state":stlist})
+
+
+def usercomplaint(request):
+    id=request.session["uid"]
+
+    compdata=db.collection("tbl_complaints").where("user_id", "==", request.session["uid"]).stream()
+    complist=[]
+    for i in compdata:
+        comp=i.to_dict()
+        complist.append({"comp_data":comp,"id":i.id})
+        
+    if request.method=="POST":
+        data={"complaint_title":request.POST.get("txtctitle")
+            ,"complaint_content":request.POST.get("txtccontent"),"user_id":id,"center_id":0}
+        db.collection("tbl_complaints").add(data)
+        return redirect("webuser:usercomplaint")
+    else:
+        return render(request,"User/Complaints.html",{"data":complist})

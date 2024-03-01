@@ -59,9 +59,11 @@
    </tr>
 </table>
 <table>
+    {% for i in route %}
     <tr>
-        <th>{{route.route_name}}</th>
+        <th>{{i.route_data.route_name}}</th>
     </tr>
+    {% endfor %}
 </table>
 </center>
 </form>

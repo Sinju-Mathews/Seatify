@@ -6,7 +6,15 @@
     <title>Admin HomePage</title>
 </head>
 <body>
-    Welcome {{admin.admin_name}}
-    <a href="{% url 'webAdmin:dataentry' %}"> DataEntry</a> <br>
+    <center>
+        Welcome {{admin.admin_name}} <br>
+<!-- <a href="{% url 'webAdmin:dataentry' %}"> DataEntry</a> <br> -->
+    <a href="{% url 'webAdmin:State' %}">State</a> <br>
+    <a href="{% url 'webAdmin:district' %}">district</a> <br>
+    <a href="{% url 'webAdmin:place' %}">place</a> <br>
+    <a href="{% url 'webAdmin:route' %}">route</a> <br>
+    <a href="{% url 'webAdmin:stop' %}">stop</a> <br>
+    </center>
+    
 </body>
 </html>

@@ -196,6 +196,30 @@ def Del_stop(request,id):
     db.collection("tbl_stop").document(id).delete()
     return redirect("webAdmin:stop")
 
+def viewcomplaints(request):
+    ccompdata=db.collection("tbl_complaints").where("bus_service_id","!=",0).stream()
+    ccomplist=[]
+    for i in ccompdata:
+        comp=i.to_dict()
+        busservice=db.collection("tbl_center").document(comp["bus_service_id"]).get().to_dict()
+        ccomplist.append({"ccomp_data":comp,"id":i.id,"busservice":busservice})
+
+    ccompdata=db.collection("tbl_complaints").where("user_id","!=",0).stream()
+    ccomplist2=[]
+    for i in ccompdata:
+        comp=i.to_dict()
+        user=db.collection("tbl_user").document(comp["user_id"]).get().to_dict()
+        ccomplist2.append({"ccomp_data":comp,"id":i.id,"user":user})
+    return render(request,"Admin/ViewComplaints.html",{"data":ccomplist,"data2":ccomplist2})
+
+def replycomplaints(request,id):
+    if request.method=="POST":
+        db.collection("tbl_complaints").document(id).update({"complaint_reply":request.POST.get("txtreply")})
+        return redirect("webadmin:viewcomplaints")
+    else:
+        return render(request,"Admin/ReplyComplaints.html")
+
+
 def dataEntry(request):
     districts = [ 
     ] 

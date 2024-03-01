@@ -6,7 +6,11 @@
     <title>Home Page</title>
 </head>
 <body>
-    Welcome {{bus.bs_name}} <br>
-    <a href="{% url 'webBusService:myprofile' %}">my Profile</a> <br>
+    <center>
+        Welcome {{bus.bs_name}} <br>
+        <a href="{% url 'webBusService:myprofile' %}">my Profile</a> <br>
+        <a href="{% url 'webBusService:schedule' %}">Add schedule</a> <br>
+    </center>
+    
 </body>
 </html>
