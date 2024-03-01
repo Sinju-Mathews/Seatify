@@ -108,12 +108,13 @@ def search(request):
         for sf in stop_from:
             fs = sf.to_dict()
             fs_id = fs["route_id"]
-        stop_from = db.collection("tbl_stop").where("stopname_id", "==", to_stop).stream()
-        for sf in stop_from:
+        stop_to = db.collection("tbl_stop").where("stopname_id", "==", to_stop).stream()
+        for sf in stop_to:
             fs = sf.to_dict()
             ts_id = fs["route_id"]
         if fs_id == ts_id:
             route = ts_id
+        print(route)
         route_data = db.collection("tbl_route").document(route).get().to_dict()
         print(route_data)
         return render(request,"User/SearchBus.html",{"route":route_data})
