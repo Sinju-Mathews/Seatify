@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_form/UserDashboard.dart';
 import 'dart:ui';
 import 'package:flutter_form/sign_up.dart';
 
@@ -15,13 +17,27 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController _passController = TextEditingController();
   bool passkey = true;
 
-  void login() {
-    print(_emailController.text);
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SignUp(),
-        ));
+  Future<void> login() async {
+    try {
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      final UserCredential userCredential =
+          await auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passController.text.trim(),
+      );
+      String userid = userCredential.user!.uid;
+      if (userid != "") {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UserDashboard(),
+            ));
+      } else {
+        print('User not found');
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   void Signup() {
@@ -123,6 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                             return null;
                           },
+                          style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             suffixIcon: InkWell(
                               onTap: () {

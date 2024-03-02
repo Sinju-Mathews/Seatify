@@ -23,6 +23,9 @@ urlpatterns = [
   path('stop/',views.Stop,name="stop"),
   path('del_stop/<str:id>',views.Del_stop,name="del_stop"),
 
+  path('viewcomplaints/',views.viewcomplaints,name="viewcomplaints"),
+  path('replycomplaints/<str:id>',views.replycomplaints,name="replycomplaints"),
+
   path('dataentry/',views.dataEntry,name="dataentry"),
 ]
 

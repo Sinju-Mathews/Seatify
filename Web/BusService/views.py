@@ -129,6 +129,6 @@ def bscomplaint(request):
         data={"complaint_title":request.POST.get("txtctitle")
             ,"complaint_content":request.POST.get("txtccontent"),"bus_service_id":id,"user_id":0}
         db.collection("tbl_complaints").add(data)
-        return redirect("webcenter:bscomplaint")
+        return redirect("webBusService:bscomplaint")
     else:
-        return render(request,"Center/BSComplaints.html",{"data":complist})
+        return render(request,"BusService/BSComplaints.html",{"data":complist})

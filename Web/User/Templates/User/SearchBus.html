@@ -58,13 +58,28 @@
         </td>
    </tr>
 </table>
-<table>
-    {% for i in route %}
+{% for i in schedule %}
+
+<br>
+<a href="{% url 'webuser:booking' i.scid %}">
+<table border="1" rules="none">
     <tr>
-        <th>{{i.route_data.route_name}}</th>
+        <td>Route :</td>
+        <td>{{i.route_data.route_name}}</td>
     </tr>
-    {% endfor %}
+    <tr>
+        <td>Bus :</td>
+        <td>{{i.sched_data.bus_name}}</td>
+    </tr>
+        
+    </tr>
+    <tr>
+        <td>Time Scheduled :</td>
+        <td>{{i.sched_data.time_scheduled}}</td>
+    </tr> 
 </table>
+</a>
+{% endfor %}
 </center>
 </form>
 </body>

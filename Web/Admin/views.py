@@ -201,7 +201,7 @@ def viewcomplaints(request):
     ccomplist=[]
     for i in ccompdata:
         comp=i.to_dict()
-        busservice=db.collection("tbl_center").document(comp["bus_service_id"]).get().to_dict()
+        busservice=db.collection("tbl_bus_service").document(comp["bus_service_id"]).get().to_dict()
         ccomplist.append({"ccomp_data":comp,"id":i.id,"busservice":busservice})
 
     ccompdata=db.collection("tbl_complaints").where("user_id","!=",0).stream()
@@ -215,7 +215,7 @@ def viewcomplaints(request):
 def replycomplaints(request,id):
     if request.method=="POST":
         db.collection("tbl_complaints").document(id).update({"complaint_reply":request.POST.get("txtreply")})
-        return redirect("webadmin:viewcomplaints")
+        return redirect("webAdmin:viewcomplaints")
     else:
         return render(request,"Admin/ReplyComplaints.html")
 
