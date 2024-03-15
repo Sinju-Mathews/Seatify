@@ -101,7 +101,7 @@ def ajaxsearch(request):
     stop_from_query = db.collection("tbl_stop").where("stopname_id", "==", from_stop).stream()
     for sf in stop_from_query:
         fs = sf.to_dict()
-        fslist.append({"f_id":fs["route_id"], "fstop_no":fs["stop_number"], "fstop_dis":fs["stop_distance"]}) 
+        fslist.append({"f_id":fs["route_id"], "fstop_no":fs["stop_number"], "fstop_dis":fs["stop_distance"], "fstime": fs["stop_time"]}) 
 
     route_ids = [fs["f_id"] for fs in fslist]
     stops_query = db.collection("tbl_stop").where("route_id", "in", route_ids).stream()
@@ -110,7 +110,7 @@ def ajaxsearch(request):
     for st in stops_query:
         stops_data = st.to_dict()
         if stops_data["stopname_id"] == to_stop:
-            tolist.append({"t_id":stops_data["route_id"], "tstop_no":stops_data["stop_number"], "tstop_dis":stops_data["stop_distance"]})
+            tolist.append({"t_id":stops_data["route_id"], "tstop_no":stops_data["stop_number"], "tstop_dis":stops_data["stop_distance"], "tstime": stops_data["stop_time"]})
 
     final_routes = []
     for fr in fslist:
@@ -118,6 +118,8 @@ def ajaxsearch(request):
             if to['t_id'] == fr['f_id'] and to['tstop_no'] > fr['fstop_no']:
                 final_routes.append(to)
                 dis=int(to["tstop_dis"])-int(fr["fstop_dis"])
+                tstime=int(to["tstime"])
+                fstime=int(fr["fstime"])
     docs=db.collection("tbl_price").order_by("date_added", direction=firestore.Query.DESCENDING).limit(1).get()
     for doc in docs:
         pr=doc.to_dict()
@@ -135,6 +137,10 @@ def ajaxsearch(request):
                 schedule= doc.to_dict() 
                 route = db.collection("tbl_route").document(schedule["route_id"]).get().to_dict()
                 schedlist.append({"route_data": route, "scid":doc.id, "sched_data": schedule})
+                dtime=schedlist.sched_data["time_scheduled"]
+                print(dtime)
+                sdtime=dtime+fstime
+                satime=dtime+tstime
         return render(request, "Guest/AjaxSearch.html", {"schedule": schedlist, "totalprice": totalprice, "dis": dis, "fplace": fplace, "tplace": tplace})
     else:
         schedlist = []
@@ -148,7 +154,16 @@ def ajaxsearch(request):
 
 
 def booking(request,id):
-    return render(request,"User/Booking.html")
+    selected_seats = []
+    seatcount = 40
+    booked_seats = [4,5,6,22,23,30,10,38]
+    seat_count = [2,7,12,17,22,27,32,37]
+    seats_range = range(1, seatcount + 1)
+    if request.method == "POST":
+        selected_seats = request.POST.getlist('txtcheck[]')
+
+        print(selected_seats)    
+    return render(request, 'User/Booking.html', {'seats_range': seats_range,"seat_count":seat_count,'booked':booked_seats})
 
 def usercomplaint(request):
     id=request.session["uid"]

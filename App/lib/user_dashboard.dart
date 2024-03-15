@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form/bottom_nav.dart';
+import 'package:flutter_form/home.dart';
+import 'package:flutter_form/my_account.dart';
+import 'package:flutter_form/my_booking.dart';
+import 'package:flutter_form/top_nav.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
@@ -8,74 +12,46 @@ class UserDashboard extends StatefulWidget {
   State<UserDashboard> createState() => _UserDashboardState();
 }
 
-class _UserDashboardState extends State<UserDashboard> {
+class _UserDashboardState extends State<UserDashboard>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  @override
+  void initState() {
+    _tabController = TabController(length: 3, vsync: this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
+  }
+  final _selectedColor = const Color.fromARGB(255, 28, 178, 178);
+  final _unselectedColor = const Color(0xff5f6368);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bus Seat Booking'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Select Destination:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            DropdownButton<String>(
-              items: <String>['Destination 1', 'Destination 2', 'Destination 3']
-                  .map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (_) {},
-              hint: const Text('Select Destination'),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Select Date:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Select Date'),
-                    Icon(Icons.calendar_today),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Select Seat Preferences:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Search Buses'),
-            ),
+        appBar: const TopNav(),
+        body: TabBarView(
+          controller: _tabController,
+          children: const [
+            Home(),
+            MyBookings(),
+            MyAccount(),
           ],
         ),
-      ),
-      bottomNavigationBar: const BottomNav(),
-    );
+        bottomNavigationBar: BottomAppBar(
+          child: TabBar(
+            controller: _tabController,
+            labelColor: _selectedColor,
+            indicatorColor: _selectedColor,
+            unselectedLabelColor: _unselectedColor,
+            tabs: const [
+              Tab(icon: Icon(Icons.home), text: "Home"),
+              Tab(icon: Icon(Icons.book), text: "My bookings"),
+              Tab(icon: Icon(Icons.person), text: "Account"),
+            ],
+          ),
+        ));
   }
 }
-
