@@ -3,83 +3,158 @@
     <title>
         Search
     </title>
+    <style>
+        .loader {
+        transform: rotateZ(45deg);
+        perspective: 1000px;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        color: #fff;
+      }
+        .loader:before,
+        .loader:after {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: inherit;
+          height: inherit;
+          border-radius: 50%;
+          transform: rotateX(70deg);
+          animation: 1s spin linear infinite;
+        }
+        .loader:after {
+          color: #FF3D00;
+          transform: rotateY(70deg);
+          animation-delay: .4s;
+        }
+
+      @keyframes rotate {
+        0% {
+          transform: translate(-50%, -50%) rotateZ(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotateZ(360deg);
+        }
+      }
+
+      @keyframes rotateccw {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(-360deg);
+        }
+      }
+
+      @keyframes spin {
+        0%,
+        100% {
+          box-shadow: .2em 0px 0 0px currentcolor;
+        }
+        12% {
+          box-shadow: .2em .2em 0 0 currentcolor;
+        }
+        25% {
+          box-shadow: 0 .2em 0 0px currentcolor;
+        }
+        37% {
+          box-shadow: -.2em .2em 0 0 currentcolor;
+        }
+        50% {
+          box-shadow: -.2em 0 0 0 currentcolor;
+        }
+        62% {
+          box-shadow: -.2em -.2em 0 0 currentcolor;
+        }
+        75% {
+          box-shadow: 0px -.2em 0 0 currentcolor;
+        }
+        87% {
+          box-shadow: .2em -.2em 0 0 currentcolor;
+        }
+      }
+
+      .div_load {
+        display: none;
+        position: absolute;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100vh;
+        background-color: #0080802b;
+        backdrop-filter: blur(59px);
+        left: 0;
+        top: 0;
+      }
+   
+    </style>
     </head>
 
 <body>
+    <div class="div_load" id="load">
+        <span class="loader"></span>
+    </div>
 <form method="post">
 	{% csrf_token %}
 <center>
-<table border="1" rules="none">
+    <table border="1" rules="none">
+        <tr>
+            <td>From :</td>
+            <td> 
+                State: 
+                <select name="ddlstate1" id="ddlstate1">
+                    <option>--select--</option>
+                    {% for i in state %}
+                    <option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+                    {% endfor %}
+                </select>      
+                &nbsp; &nbsp;District:
+                <select name="ddldist1" id="ddldist1">
+                    <option>--select--</option>
+                </select>
+                &nbsp; &nbsp;place:      
+                <select name="ddlplace1" id="ddlplace1"  onchange="getSchedule()">
+                    <option value="">--select--</option>
+                </select>      
+            </td>
+        </tr>
+        <tr>
+            <td>To :</td>
+            <td> 
+                State: 
+                <select name="ddlstate2" id="ddlstate2">
+                    <option>--select--</option>
+                    {% for i in state %}
+                    <option value="{{i.sid}}">{{i.s_data.state_name}}</option>
+                    {% endfor %}
+                </select>      
+                &nbsp; &nbsp;District:
+                <select name="ddldist2" id="ddldist2">
+                    <option>--select--</option>
+                </select>
+                &nbsp; &nbsp;place:      
+                <select name="ddlplace2" id="ddlplace2"  onchange="getSchedule()">
+                    <option value="">--select--</option>
+                </select>      
+            </td>
+        </tr>
+       
+        <tr>
+            <td>Filter Date:</td>
+            <td>
+                <input type="date" name="txtdate" id="txtdate" onchange="getSchedule()" >
+                
+            </td>
+        </tr>
+    </table>
 
-	<tr>
-		<td>From  :</td><br>
-		<td> State: 
-			<select name="ddlstate1" id="ddlstate1">
-				<option>--select--</option>
-				{% for i in state %}
-				<option value="{{i.sid}}">{{i.s_data.state_name}}</option>
-				{% endfor %}
-		  </select>	      
-               &nbsp; &nbsp;District:
-			   <select name="ddldist1" id="ddldist1">
-					 <option>--select--</option>
-			   </select>
-			   &nbsp; &nbsp;place:	      
-			  <select name="ddlplace1" id="ddlplace1" >
-					<option>--select--</option>
-			  </select>	      
-	
-		</td>
-   </tr>
-   <tr>
-	<td>To :</td>
-	<td> State: 
-		<select name="ddlstate2" id="ddlstate2">
-			<option>--select--</option>
-			{% for i in state %}
-			<option value="{{i.sid}}">{{i.s_data.state_name}}</option>
-			{% endfor %}
-	  </select>	      
-		   &nbsp; &nbsp;District:
-		   <select name="ddldist2" id="ddldist2">
-				 <option>--select--</option>
-		   </select>
-		   &nbsp; &nbsp;place:	      
-		  <select name="ddlplace2" id="ddlplace2" >
-				<option>--select--</option>
-		  </select>	      
-	</td>
-</tr>
-<br>
-<tr>
-    <td colspan="2" align="center">
-           <input type="submit" name="btnsubmit" value="Search">
-           <input type="reset"  name="btnreset"  value="Clear">
-        </td>
-   </tr>
-</table>
-{% for i in schedule %}
+<div id="schedules">
 
-<br>
-<a href="{% url 'webuser:booking' i.scid %}">
-<table border="1" rules="none">
-    <tr>
-        <td>Route :</td>
-        <td>{{i.route_data.route_name}}</td>
-    </tr>
-    <tr>
-        <td>Bus :</td>
-        <td>{{i.sched_data.bus_name}}</td>
-    </tr>
-        
-    </tr>
-    <tr>
-        <td>Time Scheduled :</td>
-        <td>{{i.sched_data.time_scheduled}}</td>
-    </tr> 
-</table>
-</a>
-{% endfor %}
+</div>
+
 </center>
 </form>
 </body>
@@ -136,5 +211,25 @@
         });
     });
 
+    function getSchedule(){
+        var fromplace=document.getElementById('ddlplace1').value;
+        var toplace=document.getElementById('ddlplace2').value;
+        var date=document.getElementById('txtdate').value;
+        if (fromplace!= "" && toplace!=""){
+            document.getElementById("load").style.display = "flex"
+            var ur = "{% url 'webuser:ajaxsearch' %}"
+			$.ajax({
+				url: ur,
+				data: { from: fromplace,to: toplace,date: date  },
+				success: function (data) {
+					$("#schedules").html(data);
+                        document.getElementById("load").style.display = "none"
+				},
+			});
+        }
+        
+    }
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementById("txtdate").setAttribute("min", today);
     
 </script>

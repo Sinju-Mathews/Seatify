@@ -1,0 +1,48 @@
+
+<div>
+    
+
+    {% if schedule != "" %}
+    {% for i in schedule %}
+<br>
+
+<table border="1" rules="none">
+    <tr>
+        <th colspan="2">
+            {{ fplace }} to {{ tplace }}
+        </th>
+        
+    </tr>
+    <tr>
+        <th>price :{{ totalprice }}/- </th>
+        <th>distance :{{ dis }}km </th>
+    </tr>
+    <tr>
+        <td>Route :</td>
+        <td>{{i.route_data.route_name}}</td>
+    </tr>
+    <tr>
+        <td>Bus :</td>
+        <td>{{i.sched_data.bus_name}}</td>
+    </tr>
+        
+    </tr>
+    <tr>
+        <td>Date Scheduled :</td>
+        <td>{{i.sched_data.date_scheduled}}</td>
+    </tr> 
+    <tr>
+        <td>Time Scheduled :</td>
+        <td>{{i.sched_data.time_scheduled}}</td>
+    </tr> 
+    <tr>
+        <td colspan="2"><a href="{% url 'webuser:booking' i.scid %}"> Book now</a></td>
+    </tr>
+    
+</table>
+
+{% endfor %}
+{% else %}
+{{ "no bus available!!" }}
+{% endif %}
+</div>

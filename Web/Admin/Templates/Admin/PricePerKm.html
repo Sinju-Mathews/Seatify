@@ -1,0 +1,55 @@
+<html>
+<head>
+    <title>
+        price
+    </title>
+    </head>
+
+<body>
+<form method="post">
+    {% csrf_token %}
+<center>
+<table border="1" rules="none">
+    <tr>
+        <td>
+            <input type="text" name="txtprice" placeholder="enter the price for 1 km (in Rs)" required>
+        </td>
+        <td>
+            <input type="submit" name="btnsubmit" value="set" >
+        </td>
+    </tr>
+    </table>
+    <br>
+    <table border="1">
+        <tr>
+            <td>
+                Sl.no.
+            </td>
+            <td>
+              price
+            </td>
+            <td>
+                date
+            </td>
+        </tr>
+        {% for i in price %}
+        <tr>
+            <td>
+            {{forloop.counter}}
+            </td>
+            <td>
+            {{i.price_data.price}}
+            </td>
+            <td>
+            {{i.price_data.date_added}}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</center>
+</form>
+
+</body>
+
+</html>
+

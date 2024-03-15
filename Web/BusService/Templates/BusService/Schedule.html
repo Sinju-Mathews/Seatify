@@ -60,10 +60,14 @@
     <td>bus Name </td>
     <td><input type="text" name="txtbus" placeholder="Name of the bus"  required="required"></td>
 </tr>
-   <tr>
- 		<td>Time Scheduled for</td>
- 		<td><input type="time" name="txttime"   required="required"></td>
-	</tr>
+<tr>
+	<td>Date Scheduled for</td>
+	<td><input type="date" name="txtdate"  id="txtdate"  required="required"></td>
+</tr>
+<tr>
+	<td>Time Scheduled for</td>
+	<td><input type="time" name="txttime"   required="required"></td>
+</tr>
 
 	
 
@@ -87,7 +91,9 @@
 		<td>
 			bus name
 		</td>
-		
+		<td>
+			date scheduled for
+		</td>
 		<td>
 			Time
 		</td>
@@ -106,6 +112,9 @@
 		</td>
 		<td>
 			{{i.sd_data.bus_name}}
+		</td>
+		<td>
+			{{i.sd_data.date_scheduled}}
 		</td>
 		<td>
 			{{i.sd_data.time_scheduled}}
@@ -189,4 +198,11 @@
         }
         
     }
+
+      // Get today's date
+        var today = new Date().toISOString().split('T')[0];
+
+        // Set the minimum date for the input field to today
+        document.getElementById("txtdate").setAttribute("min", today);
+    
 </script>

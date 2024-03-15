@@ -86,36 +86,57 @@ def search(request):
     for i in stdata:
         state=i.to_dict()
         stlist.append({"s_data":state,"sid":i.id})
+    return render(request,"User/SearchBus.html",{"state":stlist})
 
-    if request.method == "POST":
-        fslist =[]
-        from_stop = request.POST.get("ddlplace1")
-        to_stop = request.POST.get("ddlplace2")
-        stop_from_query = db.collection("tbl_stop").where("stopname_id", "==", from_stop).stream()
-        for sf in stop_from_query:
-            fs = sf.to_dict()
-            fslist.append({"f_id":fs["route_id"], "fstop_no":fs["stop_number"]}) 
+def ajaxsearch(request):
+    fslist =[]
+    from_stop = request.GET.get("from")
+    to_stop = request.GET.get("to")
+    fromplace = db.collection("tbl_place").document(from_stop).get().to_dict()
+    fplace=fromplace["place_name"]
+    print(fplace)
+    toplace = db.collection("tbl_place").document(to_stop).get().to_dict()
+    tplace=toplace["place_name"]
+    print(tplace)
+    stop_from_query = db.collection("tbl_stop").where("stopname_id", "==", from_stop).stream()
+    for sf in stop_from_query:
+        fs = sf.to_dict()
+        fslist.append({"f_id":fs["route_id"], "fstop_no":fs["stop_number"], "fstop_dis":fs["stop_distance"]}) 
 
-        route_ids = [fs["f_id"] for fs in fslist]
-        stops_query = db.collection("tbl_stop").where("route_id", "in", route_ids).stream()
+    route_ids = [fs["f_id"] for fs in fslist]
+    stops_query = db.collection("tbl_stop").where("route_id", "in", route_ids).stream()
 
-        tolist=[]
-        for s in stops_query:
-            stops_data = s.to_dict()
-            if stops_data["stopname_id"] == to_stop:
-                tolist.append({"t_id":stops_data["route_id"], "tstop_no":stops_data["stop_number"]})
+    tolist=[]
+    for st in stops_query:
+        stops_data = st.to_dict()
+        if stops_data["stopname_id"] == to_stop:
+            tolist.append({"t_id":stops_data["route_id"], "tstop_no":stops_data["stop_number"], "tstop_dis":stops_data["stop_distance"]})
 
-        final_routes = []
-        for fr in fslist:
-            for to in tolist:
-                if to['t_id'] == fr['f_id'] and to['tstop_no'] > fr['fstop_no']:
-                    final_routes.append(to)
-
-        ids_set = set()
-        for route in final_routes:
-             ids_set.add(route["t_id"])
-        ids = list(ids_set)
-
+    final_routes = []
+    for fr in fslist:
+        for to in tolist:
+            if to['t_id'] == fr['f_id'] and to['tstop_no'] > fr['fstop_no']:
+                final_routes.append(to)
+                dis=int(to["tstop_dis"])-int(fr["fstop_dis"])
+    docs=db.collection("tbl_price").order_by("date_added", direction=firestore.Query.DESCENDING).limit(1).get()
+    for doc in docs:
+        pr=doc.to_dict()
+        price=pr["price"]
+    totalprice= int(price)*dis
+    ids_set = set()
+    for route in final_routes:
+        ids_set.add(route["t_id"])
+    ids = list(ids_set)
+    if request.GET.get("date")!="":
+        schedlist = []
+        for route_id in ids:
+            schedule_q = db.collection("tbl_schedule").where("route_id", "==", route_id).where("date_scheduled", "==", request.GET.get("date")).stream()
+            for doc in schedule_q:
+                schedule= doc.to_dict() 
+                route = db.collection("tbl_route").document(schedule["route_id"]).get().to_dict()
+                schedlist.append({"route_data": route, "scid":doc.id, "sched_data": schedule})
+        return render(request, "Guest/AjaxSearch.html", {"schedule": schedlist, "totalprice": totalprice, "dis": dis, "fplace": fplace, "tplace": tplace})
+    else:
         schedlist = []
         for route_id in ids:
             schedule_q = db.collection("tbl_schedule").where("route_id", "==", route_id).stream()
@@ -123,10 +144,8 @@ def search(request):
                 schedule= doc.to_dict() 
                 route = db.collection("tbl_route").document(schedule["route_id"]).get().to_dict()
                 schedlist.append({"route_data": route, "scid":doc.id, "sched_data": schedule})
-        return render(request,"User/SearchBus.html", {"schedule":schedlist})
+        return render(request, "Guest/AjaxSearch.html", {"schedule": schedlist, "totalprice": totalprice, "dis": dis, "fplace": fplace, "tplace": tplace})
 
-    else:
-        return render(request,"User/SearchBus.html",{"state":stlist})
 
 def booking(request,id):
     return render(request,"User/Booking.html")

@@ -23,6 +23,8 @@ urlpatterns = [
   path('stop/',views.Stop,name="stop"),
   path('del_stop/<str:id>',views.Del_stop,name="del_stop"),
 
+  path('setprice/',views.setprice,name="setprice"),
+
   path('bspverification/',views.bspverification,name="bspverification"),
   path('bs_accept/<str:id>',views.bs_accept,name="bs_accept"),
   path('bs_reject/<str:id>',views.bs_reject,name="bs_reject"),

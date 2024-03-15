@@ -1,10 +1,12 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form/login_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -18,11 +20,151 @@ class _SignUpState extends State<SignUp> {
   bool agreePersonalData = true;
   XFile? _selectedImage;
   String? _imageUrl;
+  String? filePath;
   TextEditingController _nameController = TextEditingController();
+  TextEditingController _contactController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _dobController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
   TextEditingController _passController = TextEditingController();
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  String? _selectedState;
+  String? _selectedPlace;
+  String? _selectedDistrict;
+  String? selectedGender;
+  List<Map<String, dynamic>> state = [];
+  List<Map<String, dynamic>> district = [];
+  List<Map<String, dynamic>> place = [];
+  
+  Future<void> fetchState() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await db.collection('tbl_state').get();
+
+      List<Map<String, dynamic>> st = querySnapshot.docs
+          .map((doc) => {
+                'id': doc.id,
+                'state': doc['state_name'].toString(),
+              })
+          .toList();
+      setState(() {
+        state = st;
+      });
+    } catch (e) {
+      print('Error fetching state data: $e');
+    }
+  }
+  
+  Future<void> fetchDistrict(String id) async {
+    try {
+      _selectedDistrict = null;
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await db.collection('tbl_district').where('state_id', isEqualTo: id).get();
+
+      List<Map<String, dynamic>> dist = querySnapshot.docs
+          .map((doc) => {
+                'id': doc.id,
+                'district': doc['district_name'].toString(),
+              })
+          .toList();
+      setState(() {
+        district = dist;
+      });
+    } catch (e) {
+      print('Error fetching district data: $e');
+    }
+  } 
+
+   Future<void> fetchPlace(String id) async {
+    try {
+      _selectedPlace = null;
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await db.collection('tbl_place').where('district_id', isEqualTo: id).get();
+      List<Map<String, dynamic>> plc = querySnapshot.docs
+          .map((doc) => {
+                'id': doc.id,
+                'place': doc['place_name'].toString(),
+              })
+          .toList();
+      setState(() {
+        place = plc;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> _registerUser() async {
+    try {
+        UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passController.text,
+      );
+
+     if (userCredential != null) {
+        await _storeUserData(userCredential.user!.uid);
+        }
+    } catch (e) {
+     
+      print("Error registering user: $e");
+      // Handle error, show message, or take appropriate action
+    }
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ));
+  }
+
+  Future<void> _storeUserData(String userId) async {
+    try {
+      await db.collection('tbl_user').add({
+        'user_id': userId,
+        'user_name': _nameController.text,
+        'user_email': _emailController.text,
+        'user_dob': _dobController.text,
+        'user_address': _addressController.text,
+        'user_contact': _contactController.text,
+        'place_id': _selectedPlace,
+        'user_gender': selectedGender,
+        'user_photo':""
+        // Add more fields as needed
+      });
+
+      await _uploadImage(userId);
+    } catch (e) {
+      print("Error storing user data: $e");
+      // Handle error, show message or take appropriate action
+    }
+  }
+
+  Future<void> _uploadImage(String userId) async {
+  try {
+    if (_selectedImage != null) {
+       final Reference ref =
+                FirebaseStorage.instance.ref().child('user_photo/$userId.jpg');
+            await ref.putFile(File(_selectedImage!.path));
+            final imageUrl = await ref.getDownloadURL();
+
+      // Check if the document exists before updating
+      await db.collection('tbl_user')
+          .where('user_id', isEqualTo: userId)
+          .get()
+          .then((querySnapshot) {
+        querySnapshot.docs.forEach((doc) async {
+          await doc.reference.update({
+            'user_photo': imageUrl,
+          });
+        });
+      });
+    }
+  } catch (e) {
+    print("Error uploading image: $e");
+    // Handle error, show message or take appropriate action
+  }
+}
+
 
   Future<void> _pickImage() async {
     final pickedFile =
@@ -33,36 +175,10 @@ class _SignUpState extends State<SignUp> {
         _selectedImage = XFile(pickedFile.path);
       });
     }
+    print(_selectedImage?.path);
   }
 
-  List<Map<String, dynamic>> state = [
-    {'id': 'Kerala', 'name': 'Kerala'},
-    {'id': 'Tamilnadu', 'name': 'Tamilnadu'},
-    {'id': 'Rajasthan', 'name': 'Rajasthan'},
-  ];
-
-  String? selectstate;
-
-  List<Map<String, dynamic>> district = [
-    {'id': 'ernakulam', 'name': 'Ernakulam'},
-    {'id': 'idukki', 'name': 'Idukki'},
-    {'id': 'kottayam', 'name': 'Kottayam'},
-  ];
-
-  String? selectdistrict;
-
-  List<Map<String, dynamic>> place = [
-    {'id': 'muvattupuzha', 'name': 'Muvattupuzha'},
-    {'id': 'aluva', 'name': 'Aluva'},
-    {'id': 'guruvayoor', 'name': 'Guruvayoor'},
-  ];
-
-  String? selectplace;
-
-  String? selectedGender;
-
   void login() {
-    print(_emailController.text);
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -70,13 +186,12 @@ class _SignUpState extends State<SignUp> {
         ));
   }
 
-  void Signup() {
-    print(_emailController.text);
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(),
-        ));
+ 
+
+  @override
+  void initState() {
+    super.initState();
+    fetchState();
   }
 
   @override
@@ -142,7 +257,7 @@ class _SignUpState extends State<SignUp> {
                                     : _imageUrl != null
                                         ? NetworkImage(_imageUrl!)
                                         : const AssetImage(
-                                                'assets/images/dummy-profile-pic.png')
+                                                'assets/default.jpg')
                                             as ImageProvider,
                                 child: _selectedImage == null &&
                                         _imageUrl == null
@@ -244,6 +359,44 @@ class _SignUpState extends State<SignUp> {
                           ),
                         ),
                       ),
+
+                      SizedBox(
+                        height: 50,
+                      ),
+                        TextFormField(
+                        style: TextStyle(color: Colors.white),
+                        controller: _contactController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter contact';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Contact'),
+                          labelStyle:
+                              TextStyle(color: Colors.tealAccent.shade100),
+                          hintText: 'Enter contact',
+                          hintStyle: const TextStyle(
+                            color: Color.fromARGB(255, 255, 255, 255),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(
+                                  255, 255, 255, 255), // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(
+                                  255, 255, 255, 255), // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+
                       SizedBox(
                         height: 50,
                       ),
@@ -252,7 +405,7 @@ class _SignUpState extends State<SignUp> {
                         controller: _dobController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter Email';
+                            return 'Please enter dob';
                           }
                           return null;
                         },
@@ -353,135 +506,146 @@ class _SignUpState extends State<SignUp> {
                       SizedBox(
                         height: 50,
                       ),
+
                       DropdownButtonFormField<String>(
-                        dropdownColor: Color.fromARGB(220, 60, 87, 87),
-                        value: selectstate,
-                        decoration: InputDecoration(
-                          label: const Text('State'),
-                          labelStyle:
-                              TextStyle(color: Colors.tealAccent.shade100),
-                          hintText: 'Select state',
-                          hintStyle: const TextStyle(
-                            color: Colors.white,
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.white, // Default border color
+                          dropdownColor: Color.fromARGB(220, 60, 87, 87),
+                          value: _selectedState,
+                          decoration: InputDecoration(
+                            label: const Text('State'),
+                            labelStyle:
+                                TextStyle(color: Colors.tealAccent.shade100),
+                            hintText: 'Select state',
+                            hintStyle: const TextStyle(
+                              color: Colors.white,
                             ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.white, // Default border color
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.white, // Default border color
+                              ),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            borderRadius: BorderRadius.circular(10),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.white, // Default border color
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectstate = newValue;
-                          });
-                        },
-                        isExpanded: true,
-                        items: state.map<DropdownMenuItem<String>>(
-                          (Map<String, dynamic> stat) {
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedState = newValue!;
+                              fetchDistrict(newValue!);
+                            });
+                          },
+                          isExpanded: true,
+                          items: state.map<DropdownMenuItem<String>>(
+                          (Map<String, dynamic> st) {
                             return DropdownMenuItem<String>(
-                              value: stat['id'],
-                              child: Text(stat['name'],
-                                  style: TextStyle(color: Colors.white)),
+                              value: st['id'],
+                              child: Text(st['state'],style:TextStyle(color: Colors.tealAccent.shade100),),
                             );
                           },
                         ).toList(),
                       ),
+
+                        
                       SizedBox(
                         height: 50,
                       ),
-                      DropdownButtonFormField<String>(
-                        dropdownColor: Color.fromARGB(220, 60, 87, 87),
-                        value: selectdistrict,
-                        decoration: InputDecoration(
-                          label: const Text('District'),
-                          labelStyle:
-                              TextStyle(color: Colors.tealAccent.shade100),
-                          hintText: 'Select District',
-                          hintStyle: const TextStyle(
-                            color: Colors.white,
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.white, // Default border color
+
+                        DropdownButtonFormField<String>(
+                          dropdownColor: Color.fromARGB(220, 60, 87, 87),
+                          value: _selectedDistrict,
+                          decoration: InputDecoration(
+                            label: const Text('District'),
+                            labelStyle:
+                                TextStyle(color: Colors.tealAccent.shade100),
+                            hintText: 'Select district',
+                            hintStyle: const TextStyle(
+                              color: Colors.white,
                             ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.white, // Default border color
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.white, // Default border color
+                              ),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            borderRadius: BorderRadius.circular(10),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.white, // Default border color
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectdistrict = newValue;
-                          });
-                        },
-                        isExpanded: true,
-                        items: district.map<DropdownMenuItem<String>>(
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedDistrict = newValue;
+                              fetchPlace(newValue!);
+                            });
+                          },
+                          isExpanded: true,
+                          items: district.map<DropdownMenuItem<String>>(
                           (Map<String, dynamic> dist) {
                             return DropdownMenuItem<String>(
                               value: dist['id'],
-                              child: Text(dist['name'],
-                                  style: TextStyle(color: Colors.white)),
+                              child: Text(dist['district'],style:TextStyle(color: Colors.tealAccent.shade100),),
                             );
                           },
                         ).toList(),
-                      ),
+                      
+                          ),
+
+
                       SizedBox(
                         height: 50,
-                      ),
-                      DropdownButtonFormField<String>(
-                        dropdownColor: Color.fromARGB(220, 60, 87, 87),
-                        value: selectplace,
-                        decoration: InputDecoration(
-                          label: const Text('Place'),
-                          labelStyle:
-                              TextStyle(color: Colors.tealAccent.shade100),
-                          hintText: 'Select Place',
-                          hintStyle: const TextStyle(
-                            color: Colors.white,
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.white, // Default border color
+                      ), 
+
+                        DropdownButtonFormField<String>(
+                          dropdownColor: Color.fromARGB(220, 60, 87, 87),
+                          value: _selectedPlace,
+                          decoration: InputDecoration(
+                            label: const Text('Place'),
+                            labelStyle:
+                                TextStyle(color: Colors.tealAccent.shade100),
+                            hintText: 'Select Place',
+                            hintStyle: const TextStyle(
+                              color: Colors.white,
                             ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.white, // Default border color
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.white, // Default border color
+                              ),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            borderRadius: BorderRadius.circular(10),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.white, // Default border color
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectplace = newValue;
-                          });
-                        },
-                        isExpanded: true,
-                        items: place.map<DropdownMenuItem<String>>(
-                          (Map<String, dynamic> place) {
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedPlace = newValue;
+                              
+                            });
+                          },
+                          isExpanded: true,
+                          items: place.map<DropdownMenuItem<String>>(
+                          (Map<String, dynamic> pl) {
                             return DropdownMenuItem<String>(
-                              value: place['id'],
-                              child: Text(place['name'],
-                                  style: TextStyle(color: Colors.white)),
+                              value: pl['id'],
+                              child: Text(pl['place'],style:TextStyle(color: Colors.tealAccent.shade100),),
                             );
                           },
                         ).toList(),
-                      ),
+                      
+                          ), 
+
                       SizedBox(
                         height: 50,
                       ),
+
                       TextFormField(
                         style: TextStyle(color: Colors.white),
                         controller: _addressController,
@@ -555,7 +719,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
-                          Signup();
+                          _registerUser();
                         },
                         icon: const Icon(Icons.account_circle_outlined),
                         label: const Text('SIGN UP'),
@@ -571,3 +735,4 @@ class _SignUpState extends State<SignUp> {
     );
   }
 }
+ 

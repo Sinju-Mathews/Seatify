@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 import firebase_admin
+from datetime import datetime
 from firebase_admin import storage, auth, firestore, credentials
 import pyrebase
 
@@ -129,6 +130,21 @@ def AdminRegistration(request):
     else:
         return render(request,"Admin/AdminRegistration.html")
 
+def setprice(request):
+    price = db.collection("tbl_price").stream()
+    plist=[]
+    for p in price:
+        pri=p.to_dict()
+        plist.append({"price_data":pri})
+    if request.method=="POST":
+        current_date = datetime.now()
+        formatted_date = current_date.strftime("%Y-%m-%d %H:%M:%S")
+        data={"price": request.POST.get('txtprice'),"date_added": formatted_date}
+        db.collection("tbl_price").add(data)
+        return redirect("webAdmin:setprice")
+    else:
+        return render(request,"Admin/PricePerKm.html",{"price":plist})
+    
 def homepage(request):
     admin = db.collection("tbl_admin").document(request.session["aid"]).get().to_dict()
     return render(request,"Admin/AdminHome.html",{"admin":admin})

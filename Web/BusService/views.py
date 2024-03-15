@@ -103,7 +103,7 @@ def Schedule(request):
     
     data=[]
     if request.method=="POST":
-        data={"route_id": request.POST.get('ddlroute'),"bus_name": request.POST.get('txtbus'),"time_scheduled": request.POST.get('txttime'),
+        data={"route_id": request.POST.get('ddlroute'),"bus_name": request.POST.get('txtbus'),"date_scheduled": request.POST.get('txtdate'),"time_scheduled": request.POST.get('txttime'),
         "bus_service_id":request.session["bid"]}
         db.collection("tbl_schedule").add(data)
         return redirect("webBusService:schedule")
