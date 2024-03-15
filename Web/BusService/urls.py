@@ -9,4 +9,5 @@ urlpatterns = [
     path('schedule/',views.Schedule,name="schedule"),
     path('ajaxroute/',views.ajaxroute,name="ajaxroute"),
     path('bscomplaint/',views.bscomplaint,name="bscomplaint"),
+    path('bsfeedback/',views.bsfeedback,name="bsfeedback"),
 ]

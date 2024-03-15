@@ -23,9 +23,15 @@ urlpatterns = [
   path('stop/',views.Stop,name="stop"),
   path('del_stop/<str:id>',views.Del_stop,name="del_stop"),
 
+  path('bspverification/',views.bspverification,name="bspverification"),
+  path('bs_accept/<str:id>',views.bs_accept,name="bs_accept"),
+  path('bs_reject/<str:id>',views.bs_reject,name="bs_reject"),
+  path('bs_viewmore/<str:id>',views.bs_viewmore,name="bs_viewmore"),
+    
   path('viewcomplaints/',views.viewcomplaints,name="viewcomplaints"),
   path('replycomplaints/<str:id>',views.replycomplaints,name="replycomplaints"),
 
+  path('viewfeedbacks/',views.viewfeedbacks,name="viewfeedbacks"),
   path('dataentry/',views.dataEntry,name="dataentry"),
 ]
 

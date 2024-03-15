@@ -84,7 +84,7 @@ def BusRegistration(request):
         formatted_date = current_date.strftime("%Y-%m-%d %H:%M:%S")
 
         data={"bs_name": request.POST.get('txtname'),"bs_contact": request.POST.get('txtcontact'),"bs_email": request.POST.get('txtemail'),"bs_doj": formatted_date,
-        "bs_address": request.POST.get('txtaddress'),"place_id": request.POST.get('ddlplace'),"bs_logo": l_url,"bs_proof": p_url, "bs_id": user.uid}
+        "bs_address": request.POST.get('txtaddress'),"place_id": request.POST.get('ddlplace'),"bs_logo": l_url,"bs_proof": p_url,"bs_status":0, "bs_id": user.uid}
         db.collection("tbl_bus_service").add(data)
         return render(request,"Guest/BusServiceRegistration.html")
     else:

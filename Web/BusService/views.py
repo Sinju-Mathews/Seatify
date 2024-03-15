@@ -1,6 +1,7 @@
 
 from django.shortcuts import render, redirect
 import firebase_admin
+from datetime import datetime
 from firebase_admin import storage, auth, firestore, credentials
 import pyrebase
 from django.core.mail import send_mail
@@ -132,3 +133,13 @@ def bscomplaint(request):
         return redirect("webBusService:bscomplaint")
     else:
         return render(request,"BusService/BSComplaints.html",{"data":complist})
+
+def bsfeedback(request):
+    id=request.session["bid"]
+    if request.method=="POST":
+        data={"feedback_content":request.POST.get("txtfcontent")
+            ,"user_id":0,"bus_service_id":id,"feedback_time":datetime.now()}
+        db.collection("tbl_feedbacks").add(data)
+        return redirect("webuser:bsfeedback")
+    else:
+        return render(request,"User/BSFeedback.html")

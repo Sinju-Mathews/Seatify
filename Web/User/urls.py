@@ -10,4 +10,5 @@ urlpatterns = [
     path('search/',views.search,name="search"),
     path('booking/<str:id>',views.booking,name="booking"),
     path('usercomplaint/',views.usercomplaint,name="usercomplaint"),
+    path('userfeedback/',views.userfeedback,name="userfeedback"),
 ]

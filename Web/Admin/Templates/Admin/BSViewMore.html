@@ -1,0 +1,56 @@
+<html>
+<head>
+    <title>
+      View More
+    </title>
+</head>
+
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <center>
+            <table border="1" rules="none">
+                <tr>
+                    <td colspan="2"><img src={{bs.bs_logo}}></td>
+                </tr>
+                <tr>
+                    <td>Center Name</td>
+                    <td>{{bs.bs_name}}</td>
+                </tr>
+
+                <tr>
+                    <td>Email</td>
+                    <td>{{bs.bs_email}}</td>
+                </tr>
+                <tr>
+                    <td>Contact</td>
+                    <td>{{bs.bs_contact}}</td>
+                </tr>
+              
+                <tr>
+                    <td>Address</td>
+                    <td>{{bs.bs_address}}</td>
+                </tr>
+
+                <tr>
+                    <td>Place</td>
+                    <td>{{place.place_name}}</td>
+                </tr>
+                <tr>
+                    <td>District</td>
+                    <td>{{district.district_name}}</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>{{state.state_name}}</td>
+                </tr>
+                <tr><td>proof</td>
+                    <td colspan="2"><img src={{bs.bs_proof}} width="200" height="200"></td>
+                </tr>
+            </table>
+
+       
+        </center>
+    </form>
+</body>
+</html>

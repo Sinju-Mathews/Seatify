@@ -196,6 +196,42 @@ def Del_stop(request,id):
     db.collection("tbl_stop").document(id).delete()
     return redirect("webAdmin:stop")
 
+def bspverification(request):
+    bspdata=db.collection("tbl_bus_service").where("bs_status", "==", 0).stream()
+    bsplist=[]
+    for i in bspdata:
+        bs=i.to_dict()
+        bsplist.append({"bs_data":bs,"id":i.id})
+        
+    bspdata=db.collection("tbl_bus_service").where("bs_status", "==", 1).stream()
+    bsplist2=[]
+    for i in bspdata:
+        bs=i.to_dict()
+        bsplist2.append({"bs_data":bs,"aid":i.id})
+
+    bspdata=db.collection("tbl_bus_service").where("bs_status", "==", 2).stream()
+    bsplist3=[]
+    for i in bspdata:
+        bs=i.to_dict()
+        bsplist3.append({"bs_data":bs,"rid":i.id})
+    
+    return render(request,"Admin/BSPVerification.html",{'data':bsplist,"data2":bsplist2,"data3":bsplist3})
+
+def bs_accept(request,id):
+    db.collection("tbl_bus_service").document(id).update({"bs_status":1})
+    return redirect("webAdmin:bspverification")
+
+def bs_reject(request,id):
+    db.collection("tbl_bus_service").document(id).update({"bs_status":2})
+    return redirect("webAdmin:bspverification")
+
+def bs_viewmore(request,id):
+    bs = db.collection("tbl_bus_service").document(id).get().to_dict()
+    place=db.collection("tbl_place").document(bs["place_id"]).get().to_dict()
+    district=db.collection("tbl_district").document(place["district_id"]).get().to_dict()
+    state=db.collection("tbl_state").document(district["state_id"]).get().to_dict()
+    return render( request,"Admin/BSViewMore.html",{ "bs":bs ,"place":place,"district":district,"state":state} )
+
 def viewcomplaints(request):
     ccompdata=db.collection("tbl_complaints").where("bus_service_id","!=",0).stream()
     ccomplist=[]
@@ -219,6 +255,21 @@ def replycomplaints(request,id):
     else:
         return render(request,"Admin/ReplyComplaints.html")
 
+def viewfeedbacks(request):
+    feeddata=db.collection("tbl_feedbacks").where("bus_service_id","!=",0).stream()
+    feedlist1=[]
+    for i in feeddata:
+        feed=i.to_dict()
+        bs=db.collection("tbl_bus_service").document(feed["bus_service_id"]).get().to_dict()
+        feedlist1.append({"bfeed_data":feed,"id":i.id,"bs":bs})
+
+    feeddata=db.collection("tbl_feedbacks").where("user_id","!=",0).stream()
+    feedlist2=[]
+    for i in feeddata:
+        feed=i.to_dict()
+        user=db.collection("tbl_user").document(feed["user_id"]).get().to_dict()
+        feedlist2.append({"ufeed_data":feed,"id":i.id,"user":user})
+    return render(request,"Admin/ViewFeedbacks.html",{"data":feedlist1,"data2":feedlist2})
 
 def dataEntry(request):
     districts = [ 
@@ -229,3 +280,4 @@ def dataEntry(request):
         data = {"state_id": state_id, "district_name": district}
         db.collection("tbl_district").add(data)
     return redirect("webAdmin:district")
+

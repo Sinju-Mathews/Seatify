@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from datetime import datetime
 import firebase_admin
 from firebase_admin import storage, auth, firestore, credentials
 import pyrebase
@@ -146,3 +147,13 @@ def usercomplaint(request):
         return redirect("webuser:usercomplaint")
     else:
         return render(request,"User/UserComplaint.html",{"data":complist})
+
+def userfeedback(request):
+    id=request.session["uid"]
+    if request.method=="POST":
+        data={"feedback_content":request.POST.get("txtfcontent")
+            ,"user_id":id,"bus_service_id":0,"feedback_time":datetime.now()}
+        db.collection("tbl_feedbacks").add(data)
+        return redirect("webuser:userfeedback")
+    else:
+        return render(request,"User/UserFeedback.html")
