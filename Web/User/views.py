@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from datetime import datetime
+import datetime
 import firebase_admin
 from firebase_admin import storage, auth, firestore, credentials
 import pyrebase
@@ -94,10 +94,8 @@ def ajaxsearch(request):
     to_stop = request.GET.get("to")
     fromplace = db.collection("tbl_place").document(from_stop).get().to_dict()
     fplace=fromplace["place_name"]
-    print(fplace)
     toplace = db.collection("tbl_place").document(to_stop).get().to_dict()
     tplace=toplace["place_name"]
-    print(tplace)
     stop_from_query = db.collection("tbl_stop").where("stopname_id", "==", from_stop).stream()
     for sf in stop_from_query:
         fs = sf.to_dict()
@@ -112,58 +110,79 @@ def ajaxsearch(request):
         if stops_data["stopname_id"] == to_stop:
             tolist.append({"t_id":stops_data["route_id"], "tstop_no":stops_data["stop_number"], "tstop_dis":stops_data["stop_distance"], "tstime": stops_data["stop_time"]})
 
-    final_routes = []
+    details_set = set()
     for fr in fslist:
         for to in tolist:
             if to['t_id'] == fr['f_id'] and to['tstop_no'] > fr['fstop_no']:
-                final_routes.append(to)
-                dis=int(to["tstop_dis"])-int(fr["fstop_dis"])
-                tstime=int(to["tstime"])
-                fstime=int(fr["fstime"])
+                details_tuple = (fr['f_id'], int(to["tstop_dis"]) - int(fr["fstop_dis"]), int(to["tstime"]), int(fr["fstime"]))
+                details_set.add(details_tuple)
+    details = list(details_set)
+ 
     docs=db.collection("tbl_price").order_by("date_added", direction=firestore.Query.DESCENDING).limit(1).get()
     for doc in docs:
         pr=doc.to_dict()
         price=pr["price"]
-    totalprice= int(price)*dis
-    ids_set = set()
-    for route in final_routes:
-        ids_set.add(route["t_id"])
-    ids = list(ids_set)
-    if request.GET.get("date")!="":
-        schedlist = []
-        for route_id in ids:
-            schedule_q = db.collection("tbl_schedule").where("route_id", "==", route_id).where("date_scheduled", "==", request.GET.get("date")).stream()
-            for doc in schedule_q:
-                schedule= doc.to_dict() 
-                route = db.collection("tbl_route").document(schedule["route_id"]).get().to_dict()
-                schedlist.append({"route_data": route, "scid":doc.id, "sched_data": schedule})
-                dtime=schedlist.sched_data["time_scheduled"]
-                print(dtime)
-                sdtime=dtime+fstime
-                satime=dtime+tstime
-        return render(request, "Guest/AjaxSearch.html", {"schedule": schedlist, "totalprice": totalprice, "dis": dis, "fplace": fplace, "tplace": tplace})
-    else:
-        schedlist = []
-        for route_id in ids:
-            schedule_q = db.collection("tbl_schedule").where("route_id", "==", route_id).stream()
-            for doc in schedule_q:
-                schedule= doc.to_dict() 
-                route = db.collection("tbl_route").document(schedule["route_id"]).get().to_dict()
-                schedlist.append({"route_data": route, "scid":doc.id, "sched_data": schedule})
-        return render(request, "Guest/AjaxSearch.html", {"schedule": schedlist, "totalprice": totalprice, "dis": dis, "fplace": fplace, "tplace": tplace})
+   
+    schedlist = []
+    for det in details:
+        if request.GET.get("date")!="":
+            schedule_q = db.collection("tbl_schedule").where("route_id", "==", det[0]).where("date_scheduled", "==", request.GET.get("date")).stream()
+        else:
+            current_date = datetime.datetime.now()
+            formatted_date = current_date.strftime("%Y-%m-%d")
+            schedule_q = db.collection("tbl_schedule").where("route_id", "==", det[0]).where("date_scheduled", ">=", formatted_date).stream()  
+        for doc in schedule_q:
+            schedule= doc.to_dict() 
+            route = db.collection("tbl_route").document(schedule["route_id"]).get().to_dict()
+            scheduled_time = datetime.datetime.strptime(schedule["time_scheduled"], "%H:%M")
+            updated_time1 = scheduled_time + datetime.timedelta(minutes=det[3])
+            updated_time2 = scheduled_time + datetime.timedelta(minutes=det[2])
+            dtime = updated_time1.strftime("%H:%M")
+            atime = updated_time2.strftime("%H:%M")
+            tp=(int(det[1])*int(price))
+            schedlist.append({"route_data": route, "scid":doc.id, "sched_data": schedule, "distance": det[1], "depart":dtime, "arrive":atime, "price":tp}  )       
+    return render(request, "Guest/AjaxSearch.html", {"schedule": schedlist, "fplace": fplace, "tplace": tplace})
+    
 
 
 def booking(request,id):
-    selected_seats = []
     seatcount = 40
-    booked_seats = [4,5,6,22,23,30,10,38]
     seat_count = [2,7,12,17,22,27,32,37]
     seats_range = range(1, seatcount + 1)
-    if request.method == "POST":
-        selected_seats = request.POST.getlist('txtcheck[]')
+    booked_seats = []
+    bookedlist=[]
+    booked_data = db.collection("tbl_booking").where("schedule_id", "==", id).where("booking_status", "==", 1).stream()
+    for i in booked_data:     
+        bookedlist.append(i.id)
+    for b in bookedlist:
+        seats_data= db.collection("tbl_seat").where("booking_id", "==", b).where("seat_status", "==", 0).stream()   
+        for i in seats_data:
+            seat=i.to_dict()
+            print(seat)
+            booked_seats.append(int(seat["seat_no"]))
+    print(booked_seats)
 
-        print(selected_seats)    
-    return render(request, 'User/Booking.html', {'seats_range': seats_range,"seat_count":seat_count,'booked':booked_seats})
+    if request.method == "POST":
+        selected_seats = []
+        selected_seats = request.POST.getlist('txtcheck[]')
+        print(selected_seats) 
+        current_date = datetime.datetime.now()
+        book_data={"schedule_id": id,"user_id":request.session["uid"],"booking_amount": "","booking_status":0 ,
+        "booking_timepstamp":current_date}
+        db.collection("tbl_booking").add(book_data)
+
+        book_data = db.collection("tbl_booking").where("schedule_id", "==", id).where("booking_status", "==", 0)
+        .where("user_id" ,"==", request.session["uid"])
+        .order_by("booking_timepstamp", direction=firestore.Query.DESCENDING)
+        .limit(1).stream()
+        for i in book_data:     
+            bookid=i.id
+        for i in selected_seats:
+            seat_data={"booking_id":bookid,"seat_no":i,"seat_status":0 }
+            db.collection("tbl_seat").add(seat_data)
+        return render(request, 'User/ConfirmBooking.html')
+    else:     
+        return render(request, 'User/Booking.html', {'seats_range': seats_range,"seat_count":seat_count,'booked':booked_seats})
 
 def usercomplaint(request):
     id=request.session["uid"]

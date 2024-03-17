@@ -10,6 +10,7 @@ urlpatterns = [
     path('search/',views.search,name="search"),
     path('ajaxsearch/',views.ajaxsearch,name="ajaxsearch"),
     path('booking/<str:id>',views.booking,name="booking"),
+    path('confirmbooking/',views.confirmbooking,name="confirmbooking"),
     path('usercomplaint/',views.usercomplaint,name="usercomplaint"),
     path('userfeedback/',views.userfeedback,name="userfeedback"),
 ]

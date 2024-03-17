@@ -14,8 +14,8 @@
         
     </tr>
     <tr>
-        <th>price :{{ totalprice }}/- </th>
-        <th>distance :{{ dis }}km </th>
+        <th>price :{{ i.price }}/- </th>
+        <th>distance :{{ i.distance }}km </th>
     </tr>
     <tr>
         <td>Route :</td>
@@ -37,8 +37,12 @@
     </tr> 
 
     <tr>
-        <td>reach {{ fplace }} by :</td>
-        <td></td>
+        <th>departure from {{ fplace }} by :</th>
+        <th>{{i.depart}}</th>
+    </tr> 
+    <tr>
+        <th> arrive {{ tplace }} by :</th>
+        <th>{{i.arrive}}</th>
     </tr> 
 
     <tr>
