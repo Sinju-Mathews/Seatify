@@ -27,9 +27,8 @@
   <link href="{% static 'User/css/responsive.css' %}"rel="stylesheet" />
 </head>
 <body>
-  <div class="hero_area">
     <!-- header section strats -->
-    <header class="header_section long_section px-0">
+    <header class="header_section long_section px-0" style="position: sticky;">
       <nav class="navbar navbar-expand-lg custom_nav-container ">
         <a class="navbar-brand" href="index.html">
           <span>
@@ -76,9 +75,15 @@
         </div>
       </nav>
     </header>
+ <div style="min-height: 100vh;">
+
+   {% block content %}
+   
+   
+   
+   
+   {% endblock content%}
   </div>
-    {% block content %}
-    {% endblock content%}
     <footer class="footer_section">
       <div class="container">
         <p>
@@ -88,6 +93,8 @@
         </p>
       </div>
     </footer>
+   
+
 
     <script src="{% static 'User/js/jquery-3.4.1.min.js' %}"></script>
     <!-- bootstrap js -->

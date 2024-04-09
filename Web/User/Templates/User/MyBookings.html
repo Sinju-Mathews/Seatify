@@ -1,62 +1,87 @@
-{% extends 'User/Head.html' %}
-{%load static %}
-{% block content %}
+{% extends 'User/Head.html' %} {%load static %} {% block content %}
 <html>
-{% csrf_token %}
+  {% csrf_token %}
 
-<head>
-  <title>my Bookings</title>
-  <link rel="stylesheet" href="{% static 'User/mybooking.css' %}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-</head>
+  <head>
+    <title>my Bookings</title>
+    <link rel="stylesheet" href="{% static 'User/mybooking.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
 
-<body>
-  <div class="order-container">
-    <h1>Upcoming Journeys</h1>
-    <div class="order">
-      {% for i in bdata %}
-      <div class="product">
-        
-          <div class="product-details">
-            <div><span id="places">{{ i.fplace }} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ i.toplace }}</span><br>
-              <span id="date">Booked for: <span style="color: navy;">{{ i.sched_date }}</span></span></div>
-            <div id="price">₹ {{ i.bbook_data.booking_price }}/-</div>
+  <body>
+    <div class="Main_Container_Box">
+      <div class="order-container">
+        <h1>Upcoming Journeys</h1>
+        <div class="order">
+          {% for i in bdata %}
+          <div class="product">
+            <div class="product-details">
+              <div>
+                <span id="places"
+                  >{{ i.fplace }}
+                  <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{
+                  i.toplace }}</span
+                ><br />
+                <span id="date"
+                  >Booked for:
+                  <span style="color: navy">{{ i.sched_date }}</span></span
+                >
+              </div>
+              <div id="price">₹ {{ i.bbook_data.booking_price }}/-</div>
+            </div>
+            <!-- Move the button-container below the product-details -->
+            <div class="button-container">
+              <a class="view-button" href="{% url 'webuser:eachbooking' i.id %}"
+                >Ticket</a
+              >
+              {% if i.bbook_data.booking_status == 1 %}
+              <a
+                class="view-button"
+                href="{% url 'webuser:cancelbooking' i.id %}"
+                onclick="return confirm('Do you want to cancel your booking?')"
+                >Cancel</a
+              >
+              {% elif i.bbook_data.booking_status == 2 %}
+              <span id="cancelled">cancelled</span>
+              {% endif %}
+            </div>
           </div>
-        <!-- Move the button-container below the product-details -->
-        <div class="button-container">
-          <a class="view-button" href="{% url 'webuser:eachbooking' i.id %}">Ticket</a>
-          {% if i.bbook_data.booking_status == 1 %}
-          <a class="view-button" href="{% url 'webuser:cancelbooking' i.id %}" onclick="return confirm('Do you want to cancel your booking?')">Cancel</a>
-          {% elif i.bbook_data.booking_status == 2 %}
-          <span id="cancelled">cancelled</span>
-          {% endif %}
+          {% endfor %}
         </div>
       </div>
-      {% endfor %}
-    </div>
-  </div>
 
-
-  <div class="order-container">
-    <h1>Previous Journeys</h1>
-    <div class="order">
-      {% for i in adata %}
-      <div class="product">
-        
-          <div class="product-details">
-            <div><span id="places">{{ i.fplace }} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ i.toplace }}</span><br>
-              <span id="date">Booked for: <span style="color: navy;">{{ i.sched_date }}</span></span></div>
-            <div id="price">₹ {{ i.abook_data.booking_price }}/-</div>
+      <div class="order-container">
+        <h1>Previous Journeys</h1>
+        <div class="order">
+          {% for i in adata %}
+          <div class="product">
+            <div class="product-details">
+              <div>
+                <span id="places"
+                  >{{ i.fplace }}
+                  <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{
+                  i.toplace }}</span
+                ><br />
+                <span id="date"
+                  >Booked for:
+                  <span style="color: navy">{{ i.sched_date }}</span></span
+                >
+              </div>
+              <div id="price">₹ {{ i.abook_data.booking_price }}/-</div>
+            </div>
+            <!-- Move the button-container below the product-details -->
+            <div class="button-container">
+              <a class="view-button" href="">Ticket</a>
+              <a class="view-button" href="">review</a>
+            </div>
           </div>
-        <!-- Move the button-container below the product-details -->
-        <div class="button-container">
-          <a class="view-button" href="">Ticket</a>
-          <a class="view-button" href="">review</a>
+          {% endfor %}
         </div>
       </div>
-      {% endfor %}
     </div>
-  </div>
-</body>
+  </body>
 </html>
 {% endblock content %}
