@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin HomePage</title>
+</head>
+<body>
+    <center>
+        Welcome {{admin.admin_name}} <br>
+<!-- <a href="{% url 'webAdmin:dataentry' %}"> DataEntry</a> <br> -->
+    <a href="{% url 'webAdmin:State' %}">State</a> <br>
+    <a href="{% url 'webAdmin:district' %}">district</a> <br>
+    <a href="{% url 'webAdmin:place' %}">place</a> <br>
+    <a href="{% url 'webAdmin:route' %}">route</a> <br>
+    <a href="{% url 'webAdmin:stop' %}">stop</a> <br>
+    <a href="{% url 'webAdmin:viewfeedbacks' %}">View Feedback</a> <br>
+    <a href="{% url 'webAdmin:viewcomplaints' %}">View Complaint</a> <br>
+    <a href="{% url 'webAdmin:bspverification' %}">bsp verification</a> <br>
+    </center>
+    
+</body>
+</html>

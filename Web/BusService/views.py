@@ -34,8 +34,7 @@ def myprofile(request):
     placelist=[]
     place = db.collection("tbl_place").document(bus["place_id"]).get().to_dict()
     district=db.collection("tbl_district").document(place["district_id"]).get().to_dict()
-    state=db.collection("tbl_state").document(district["state_id"]).get().to_dict()
-    placelist.append({"place":place,"district":district,"state":state}) 
+    placelist.append({"place":place,"district":district}) 
     return render(request,"BusService/MyProfile.html",{"bus":bus,"pdata":placelist}) 
 
 def editprofile(request):
@@ -43,14 +42,13 @@ def editprofile(request):
     placelist=[]
     place = db.collection("tbl_place").document(bus["place_id"]).get().to_dict()
     district=db.collection("tbl_district").document(place["district_id"]).get().to_dict()
-    state=db.collection("tbl_state").document(district["state_id"]).get().to_dict()
-    placelist.append({"place":place,"district":district,"state":state}) 
+    placelist.append({"place":place,"district":district}) 
 
-    stdata=db.collection("tbl_state").stream()
-    stlist=[]
-    for i in stdata:
-        state=i.to_dict()
-        stlist.append({"s_data":state,"sid":i.id})
+    disdata=db.collection("tbl_district").where("state_id", "==", "W0uxFyeWbPsgapYAJM0w").stream()
+    dislist=[]
+    for i in disdata:
+        district=i.to_dict()
+        dislist.append({"d_data":district,"did":i.id})
 
     if request.method=="POST":
 
@@ -67,7 +65,7 @@ def editprofile(request):
          "place_id": request.POST.get('ddlplace'),})
         return redirect("webBusService:myprofile")
     else:
-        return render(request,"BusService/EditProfile.html",{"bus":bus,"pdata":placelist,"sdata":stlist})
+        return render(request,"BusService/EditProfile.html",{"bus":bus,"pdata":placelist,"ddata":dislist})
 
 def changepassword(request):
     user = db.collection("tbl_bus_service").document(request.session["bid"]).get().to_dict()

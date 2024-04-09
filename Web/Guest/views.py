@@ -23,11 +23,11 @@ authe=firebase.auth()
 # Create your views here.
 
 def UserRegistration(request):
-    stdata=db.collection("tbl_state").stream()
-    stlist=[]
-    for i in stdata:
-        state=i.to_dict()
-        stlist.append({"s_data":state,"sid":i.id})
+    disdata=db.collection("tbl_district").where("state_id", "==", "W0uxFyeWbPsgapYAJM0w").stream()
+    dislist=[]
+    for i in disdata:
+        district=i.to_dict()
+        dislist.append({"d_data":district,"did":i.id})
     
     data=[]
     if request.method=="POST":
@@ -51,15 +51,15 @@ def UserRegistration(request):
         db.collection("tbl_user").add(data)
         return render(request,"Guest/UserRegistration.html")
     else:
-        return render(request,"Guest/UserRegistration.html",{"state":stlist})
+        return render(request,"Guest/UserRegistration.html",{"district":dislist})
     
 
 def BusRegistration(request):
-    stdata=db.collection("tbl_state").stream()
-    stlist=[]
-    for i in stdata:
-        state=i.to_dict()
-        stlist.append({"s_data":state,"sid":i.id})
+    disdata=db.collection("tbl_district").where("state_id", "==", "W0uxFyeWbPsgapYAJM0w").stream()
+    dislist=[]
+    for i in disdata:
+        district=i.to_dict()
+        dislist.append({"d_data":district,"did":i.id})
     
     data=[]
     if request.method=="POST":
@@ -88,7 +88,7 @@ def BusRegistration(request):
         db.collection("tbl_bus_service").add(data)
         return render(request,"Guest/BusServiceRegistration.html")
     else:
-        return render(request,"Guest/BusServiceRegistration.html",{"state":stlist})
+        return render(request,"Guest/BusServiceRegistration.html",{"district":dislist})
 
 def AjaxDistrict(request):
     dis = db.collection("tbl_district").where("state_id", "==", request.GET.get("sid")).stream()

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form/bottom_nav.dart';
 import 'package:flutter_form/home.dart';
 import 'package:flutter_form/my_account.dart';
 import 'package:flutter_form/my_booking.dart';
@@ -41,17 +40,36 @@ class _UserDashboardState extends State<UserDashboard>
           ],
         ),
         bottomNavigationBar: BottomAppBar(
-          child: TabBar(
-            controller: _tabController,
-            labelColor: _selectedColor,
-            indicatorColor: _selectedColor,
-            unselectedLabelColor: _unselectedColor,
-            tabs: const [
-              Tab(icon: Icon(Icons.home), text: "Home"),
-              Tab(icon: Icon(Icons.book), text: "My bookings"),
-              Tab(icon: Icon(Icons.person), text: "Account"),
-            ],
-          ),
+
+         child: TabBar(
+  controller: _tabController,
+  labelColor: _selectedColor,
+  indicatorColor: _selectedColor,
+  unselectedLabelColor: _unselectedColor,
+  tabs: [
+    Tab(
+      icon: Icon(Icons.home),
+      child: Text(
+        "Home",
+        style: TextStyle(fontSize: 12),
+      ),
+    ),
+    Tab(
+      icon: Icon(Icons.book),
+      child: Text(
+        "My bookings",
+        style: TextStyle(fontSize: 12),
+      ),
+    ),
+    Tab(
+      icon: Icon(Icons.person),
+      child: Text(
+        "Account",
+        style: TextStyle(fontSize: 12),
+      ),
+    ),
+  ],
+),
         ));
   }
 }

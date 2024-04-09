@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Summary</title>
+    <style>
+        .container {
+            width: 50%;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(19, 90, 103, 0.3);
+            padding: 20px;
+            background-color: #ffffff; /* Change this to desired background color */
+            margin: 0 auto; /* Center the container horizontally */
+        }
+
+        .alink {
+                background-color: #19b2d1;
+                text-decoration-line:none;
+                border: none;
+                color: #f8f8f8;
+                font-size: 16px;
+                padding: 12px;
+                text-align: center;
+                border-radius: 5px;
+                cursor: pointer;
+                width: 10%;
+            }
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+    {% for i in schedule %}
+        <!-- Your provided HTML content goes here -->
+        <div dir="ltr" class="es-wrapper-color">
+            <table cellpadding="0" cellspacing="0" width="100%">
+                <tbody>
+                    <tr>
+                        <td align="center" class="esd-block-text">
+                            <h1>Booking summary</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" class="esd-block-text es-p40t es-p20r es-p20l es-m-p10t">
+                            <h3 class="b_title">booking for {{ i.schedule_data.date_scheduled }}</h3>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="container">
+            <table cellpadding="30" cellspacing="0" class="es-left" align="center">
+                <tr>
+                     <td align="center" class="esd-block-image" style="font-size: 0px;"><img class="adapt-img p_image"
+                           src="{% static 'User/bus.jpg' %}" alt="" style="display: block; border-radius: 10px"
+                            width="195"></td> 
+                    <td align="left" class="esd-block-text es-p25t es-p25b es-p20r es-p20l es-m-txt-c">
+                        <h3 class="p_name" style="line-height: 150%;">Bus Name :{{ i.schedule_data.bus_name }}</h3>
+                        <p class="p_description" style="line-height: 150%;">{{ i.frompl }} to {{ i.topl }}</p>
+                        <p style="line-height: 150%;">depart from {{ i.frompl }} at {{ i.arrive }}</p>
+                        <p style="line-height: 150%;">reach at {{ i.topl }} at  {{ i.depart }}</p>
+                        <p style="line-height: 150%;">no. of seats booked:&nbsp; {{count}}</p>
+                        <p style="line-height: 150%;">seats booked:&nbsp;{% for seat in selected %}
+                            {{ seat }}  &nbsp;
+                        {% endfor %}</p>
+                        <h3 style="line-height: 150%;" class="p_price">amount per seat:{{ i.price }}/-</h3>
+                    </td>
+                </tr>
+            </table>
+            <table cellpadding="0" cellspacing="0" width="100%">
+                <tbody>
+                    <tr>
+                        <td align="center" class="esd-block-text">
+                            <h1>Booking total</h1>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table cellpadding="0" cellspacing="0" width="60%" align="center">
+                <tbody>
+                    <tr>
+                        <td align="center" class="esd-block-spacer es-p5t es-p5b" style="font-size:0">
+                            <table border="0" width="100%" height="100%" cellpadding="0" cellspacing="0">
+                                <tbody>
+                                    <tr>
+                                        <td
+                                            style="border-bottom: 5px dotted #a7c957; background: unset; height: 1px; width: 100%; margin: 0px;">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table cellpadding="0" cellspacing="0" width="60%" align="center">
+                <tbody>
+                    <tr>
+                        <td align="left" class="esd-block-text es-m-txt-l">
+                            <h3>Total</h3>
+                        </td>
+                        <td align="right" class="esd-block-text es-m-txt-r">
+                            <h3>{{ total }}/-</h3>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br>
+    <center>
+        <div class="btn">
+        <a class="alink" href="{% url 'webuser:confirmbooking' bookid total%}"> Confirm</a>
+    </div>
+</center>
+    
+{% endfor %}
+</body>
+</html>

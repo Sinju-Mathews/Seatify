@@ -67,30 +67,21 @@
    </tr>
    
    <tr>
-    <td>State</td>
+    <td>District</td>
     <td>
-        <select name="ddlstate" id="ddlstate" >
-            <option>--select--</option>
-            {% for i in sdata %}
-            {% if i.sid == pdata.0.district.state_id %}
-              <option value="{{i.sid}}" selected>{{i.s_data.state_name}}</option>
-              {% else %}
-              <option value="{{i.sid}}">{{i.s_data.state_name}}</option>
-              {% endif %}
-            {% endfor %}
-        </select>	          
+            <select name="ddldist" id="ddldist">
+               <option>--select--</option>
+               {% for i in ddata %}
+               {% if i.did == pdata.0.place.district_id %}
+                 <option value="{{i.did}}" selected>{{i.d_data.district_name}}</option>
+                 {% else %}
+                 <option value="{{i.did}}">{{i.d_data.district_name}}</option>
+                 {% endif %}
+               {% endfor %}
+            </select>	      
      </td>
 </tr>
 
-
-	<tr>
- 		<td>District</td>
- 		<td>
-     			<select name="ddldist" id="ddldist">
-       				<option value="{{pdata.0.place.district_id}}">{{pdata.0.district.district_name}}</option>
-     			</select>	      
-  		</td>
-	</tr>
 
 
 	<tr>
@@ -116,19 +107,7 @@
 </body>
 </html>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script>
-    $("#ddlstate").change(function () {
-        var sid = $(this).val();
-        var ur = "{% url 'webGuest:AjaxDistrict' %}"
-        $.ajax({
-            url: ur,
-            data: { sid: sid, },
-            success: function (data) {
-                $("#ddldist").html(data);
-            },
-        });
-    });
-</script>
+
 
 <script>
     $("#ddldist").change(function () {

@@ -1,3 +1,6 @@
+{% extends 'User/Head.html' %}
+{%% load static }
+{% block content %}
 <html>
 <head>
     <title>
@@ -47,10 +50,6 @@
                     <td>District</td>
                     <td>{{pdata.0.district.district_name}}</td>
                 </tr>
-                <tr>
-                    <td>State</td>
-                    <td>{{pdata.0.state.state_name}}</td>
-                </tr>
             </table>
             <a href="{% url 'webuser:editprofile' %}">Edit profile</a><br>
             <a href="{% url 'webuser:changepassword' %}">Change Password</a> 
@@ -60,3 +59,4 @@
     </form>
 </body>
 </html>
+{% endblock content %}

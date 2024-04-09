@@ -1,0 +1,121 @@
+/* Reset some default styles */
+body {
+  margin: 0;
+  padding: 30px 0 0 0;
+  font-family: Arial, sans-serif;
+  background-color: white;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('themebg1.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(2px); /* Adjust the blur value as needed */
+  z-index: -1;
+}
+  
+    
+  /* Style the container for orders */
+  .order-container {
+    width: 50%;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add shadow effect */
+    background-color: white;
+    opacity: 0.9;
+  }
+  
+  /* Style each order */
+  .order {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px; /* Add spacing between orders */
+  }
+  
+  /* Style each product within an order */
+  
+  .product {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .product-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  #places {
+    color: rgb(23, 23, 103);
+    font-size: 16;
+    font-weight: bold;
+
+  }
+  #cancelled {
+    color: rgb(118, 9, 9);
+    font-size: 20;
+    font-weight: bold;
+  }
+
+  #date {
+    color: rgb(5, 5, 173);
+  }
+
+  #price {
+    background-color: orange;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 5px;
+  }
+
+  .button-container {
+    margin-top: 10px;
+  }
+
+  .view-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-right: 5px;
+  }
+
+  /* Style the container for the button */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  text-align: right; /* Align the button to the right */
+  margin: 20px; /* Optional margin for spacing */
+}
+
+/* Style the anchor element to look like a button */
+.view-button {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #6da1d2; /* Button background color */
+  color: rgb(255, 255, 255); /* Button text color */
+  text-decoration: none; /* Remove underline from the link */
+  border: none;
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer;
+}
+
+.view-button:hover {
+  background-color: #175699; /* Button background color on hover */
+}

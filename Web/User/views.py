@@ -33,8 +33,7 @@ def myprofile(request):
     placelist=[]
     place = db.collection("tbl_place").document(user["place_id"]).get().to_dict()
     district=db.collection("tbl_district").document(place["district_id"]).get().to_dict()
-    state=db.collection("tbl_state").document(district["state_id"]).get().to_dict()
-    placelist.append({"place":place,"district":district,"state":state}) 
+    placelist.append({"place":place,"district":district}) 
     return render(request,"User/MyProfile.html",{"user":user,"pdata":placelist}) 
 
 def editprofile(request):
@@ -42,14 +41,13 @@ def editprofile(request):
     placelist=[]
     place = db.collection("tbl_place").document(user["place_id"]).get().to_dict()
     district=db.collection("tbl_district").document(place["district_id"]).get().to_dict()
-    state=db.collection("tbl_state").document(district["state_id"]).get().to_dict()
-    placelist.append({"place":place,"district":district,"state":state}) 
+    placelist.append({"place":place,"district":district}) 
 
-    stdata=db.collection("tbl_state").stream()
-    stlist=[]
-    for i in stdata:
-        state=i.to_dict()
-        stlist.append({"s_data":state,"sid":i.id})
+    disdata=db.collection("tbl_district").where("state_id", "==", "W0uxFyeWbPsgapYAJM0w").stream()
+    dislist=[]
+    for i in disdata:
+        district=i.to_dict()
+        dislist.append({"d_data":district,"did":i.id})
 
     if request.method=="POST":
 
@@ -66,7 +64,7 @@ def editprofile(request):
         "place_id": request.POST.get('ddlplace'),})
         return redirect("webuser:myprofile")
     else:
-        return render(request,"User/EditProfile.html",{"user":user,"pdata":placelist,"sdata":stlist})
+        return render(request,"User/EditProfile.html",{"user":user,"pdata":placelist,"ddata":dislist})
 
 def changepassword(request):
     user = db.collection("tbl_user").document(request.session["uid"]).get().to_dict()
@@ -141,49 +139,134 @@ def ajaxsearch(request):
             atime = updated_time2.strftime("%H:%M")
             tp=(int(det[1])*int(price))
             schedlist.append({"route_data": route, "scid":doc.id, "sched_data": schedule, "distance": det[1], "depart":dtime, "arrive":atime, "price":tp}  )       
-    return render(request, "Guest/AjaxSearch.html", {"schedule": schedlist, "fplace": fplace, "tplace": tplace})
+    return render(request, "Guest/AjaxSearch.html", {"schedule": schedlist, "fplace": fplace, "tplace": tplace, "fid":from_stop, "tid":to_stop})
     
 
 
-def booking(request,id):
+def booking(request,price,sid,from_stop,to_stop,arrive,depart):
     seatcount = 40
     seat_count = [2,7,12,17,22,27,32,37]
     seats_range = range(1, seatcount + 1)
     booked_seats = []
     bookedlist=[]
-    booked_data = db.collection("tbl_booking").where("schedule_id", "==", id).where("booking_status", "==", 1).stream()
+
+    fromplace = db.collection("tbl_place").document(from_stop).get().to_dict()
+    frompl=fromplace["place_name"]
+    toplace = db.collection("tbl_place").document(to_stop).get().to_dict()
+    topl=toplace["place_name"]
+
+    booked_data = db.collection("tbl_booking").where("schedule_id", "==", sid).where("booking_status", "==", 1).stream()
     for i in booked_data:     
         bookedlist.append(i.id)
     for b in bookedlist:
         seats_data= db.collection("tbl_seat").where("booking_id", "==", b).where("seat_status", "==", 0).stream()   
         for i in seats_data:
             seat=i.to_dict()
-            print(seat)
             booked_seats.append(int(seat["seat_no"]))
-    print(booked_seats)
 
     if request.method == "POST":
         selected_seats = []
-        selected_seats = request.POST.getlist('txtcheck[]')
-        print(selected_seats) 
+        selected_seats = request.POST.getlist('txtcheck[]') 
         current_date = datetime.datetime.now()
-        book_data={"schedule_id": id,"user_id":request.session["uid"],"booking_amount": "","booking_status":0 ,
-        "booking_timepstamp":current_date}
+        book_data={"schedule_id": sid,"user_id":request.session["uid"],"booking_price": "","booking_status":0 ,
+        "booking_timepstamp":current_date, "fromplace":from_stop, "toplace":to_stop }
         db.collection("tbl_booking").add(book_data)
-
-        book_data = db.collection("tbl_booking").where("schedule_id", "==", id).where("booking_status", "==", 0)
-        .where("user_id" ,"==", request.session["uid"])
-        .order_by("booking_timepstamp", direction=firestore.Query.DESCENDING)
-        .limit(1).stream()
+        book_data = db.collection("tbl_booking").where("schedule_id", "==",sid).where("booking_status", "==", 0).where("user_id" ,"==", request.session["uid"]).order_by("booking_timepstamp", direction=firestore.Query.DESCENDING).limit(1).stream()
         for i in book_data:     
             bookid=i.id
+        count=0
         for i in selected_seats:
+            count=count+1
             seat_data={"booking_id":bookid,"seat_no":i,"seat_status":0 }
             db.collection("tbl_seat").add(seat_data)
-        return render(request, 'User/ConfirmBooking.html')
+        schedlist=[]
+        schedule= db.collection("tbl_schedule").document(sid).get().to_dict() 
+        total=count*price
+        schedlist.append({"schedule_data": schedule, "price":price, "schedid":sid, "frompl":frompl, "topl":topl, "arrive":arrive, "depart":depart}  )
+        return render(request, 'User/ConfirmBooking.html',{"schedule":schedlist, "selected":selected_seats, "count":count, "total":total, "bookid":bookid})
     else:     
         return render(request, 'User/Booking.html', {'seats_range': seats_range,"seat_count":seat_count,'booked':booked_seats})
 
+def confirmbooking(request,id,total):
+    db.collection("tbl_booking").document(id).update({"booking_price":total})
+    return render(request, 'User/Payment.html' ,{"bookid":id})
+
+def payment(request,id):
+    current_date = datetime.datetime.now()
+    db.collection("tbl_booking").document(id).update({"booking_status":1})
+    return render(request, 'User/sucess.html')
+
+def mybookings(request):
+    current_date = datetime.datetime.now()
+    formatted_date = current_date.strftime("%Y-%m-%d")
+    book_query = db.collection("tbl_booking").where("user_id", "==", request.session["uid"]).where("booking_status", "!=",0).stream()
+    bbooklist=[]
+    abooklist=[]
+    for book in book_query:
+        book_data = book.to_dict()   
+        fromplace_doc = db.collection("tbl_place").document(book_data["fromplace"]).get().to_dict()
+        toplace_doc = db.collection("tbl_place").document(book_data["toplace"]).get().to_dict()
+        sch=db.collection("tbl_schedule").document(book_data["schedule_id"]).get().to_dict() 
+
+        if sch["date_scheduled"]>=formatted_date:
+            bbooklist.append({
+            "bbook_data": book_data,
+            "id": book.id,
+            "fplace": fromplace_doc["place_name"],
+            "toplace": toplace_doc["place_name"],
+            "sched_date":sch["date_scheduled"]
+            }) 
+        else:
+            abooklist.append({
+            "abook_data": book_data,
+            "id": book.id,            
+            "fplace": fromplace_doc["place_name"],
+            "toplace": toplace_doc["place_name"],
+            "sched_date":sch["date_scheduled"]
+        })
+    return render(request, 'User/MyBookings.html',{"bdata":bbooklist,"adata":abooklist})
+
+def eachbooking(request,id):
+    count=0
+    seats=[]
+    fslist=[]
+    tslist=[]
+    book_data = db.collection("tbl_booking").document(id).get().to_dict()
+    fromplace_doc = db.collection("tbl_place").document(book_data["fromplace"]).get().to_dict()
+    toplace_doc = db.collection("tbl_place").document(book_data["toplace"]).get().to_dict()
+    sch=db.collection("tbl_schedule").document(book_data["schedule_id"]).get().to_dict()
+    route=db.collection("tbl_route").document(sch["route_id"]).get().to_dict()
+    seat_query = db.collection("tbl_seat").where("booking_id","==" , id).stream()
+    for i in seat_query:
+        count=count+1
+        seat_data = i.to_dict()
+        seats.append(seat_data["seat_no"])
+    stop_from_query = db.collection("tbl_stop").where("stopname_id", "==", book_data["fromplace"]).where("route_id", "==", sch["route_id"]).stream()
+    for sf in stop_from_query:
+        fs = sf.to_dict()
+        fslist.append(fs["stop_distance"])
+        fslist.append(fs["stop_time"])
+    stop_to_query = db.collection("tbl_stop").where("stopname_id", "==", book_data["toplace"]).where("route_id", "==", sch["route_id"]).stream()
+    for st in stop_to_query:
+        ts = st.to_dict()
+        tslist.append(ts["stop_distance"])
+        tslist.append(ts["stop_time"])
+    
+    dis=int(tslist[0]) - int(fslist[0])
+    scheduled_time = datetime.datetime.strptime(sch["time_scheduled"], "%H:%M")
+    updated_time1 = scheduled_time + datetime.timedelta(minutes=int(fslist[1]))
+    updated_time2 = scheduled_time + datetime.timedelta(minutes=int(tslist[1]))
+    dtime = updated_time1.strftime("%H:%M")
+    atime = updated_time2.strftime("%H:%M")
+    price=int(book_data["booking_price"])/count
+    data=db.collection("tbl_user").document(request.session["uid"]).get().to_dict()
+    details={"count":count,"arrive":atime,"depart":dtime,"distance":dis,"price":price,"name":data["user_name"],"route":route["route_name"]}
+    return render(request, 'User/EachBooking.html',{"book_data":book_data,"from_place":fromplace_doc,"to_place":toplace_doc,"sched_data":sch,"seat_data":seats,"details":details})
+
+def cancelbooking(request,id):
+    db.collection("tbl_booking").document(id).update({"booking_status":2})
+    return redirect("webuser:mybookings")
+    
 def usercomplaint(request):
     id=request.session["uid"]
 

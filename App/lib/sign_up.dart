@@ -28,38 +28,18 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _addressController = TextEditingController();
   TextEditingController _passController = TextEditingController();
   FirebaseFirestore db = FirebaseFirestore.instance;
-  String? _selectedState;
   String? _selectedPlace;
   String? _selectedDistrict;
   String? selectedGender;
-  List<Map<String, dynamic>> state = [];
   List<Map<String, dynamic>> district = [];
   List<Map<String, dynamic>> place = [];
   
-  Future<void> fetchState() async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await db.collection('tbl_state').get();
-
-      List<Map<String, dynamic>> st = querySnapshot.docs
-          .map((doc) => {
-                'id': doc.id,
-                'state': doc['state_name'].toString(),
-              })
-          .toList();
-      setState(() {
-        state = st;
-      });
-    } catch (e) {
-      print('Error fetching state data: $e');
-    }
-  }
-  
-  Future<void> fetchDistrict(String id) async {
+ 
+  Future<void> fetchDistrict() async {
     try {
       _selectedDistrict = null;
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await db.collection('tbl_district').where('state_id', isEqualTo: id).get();
+          await db.collection('tbl_district').where('state_id', isEqualTo: "W0uxFyeWbPsgapYAJM0w").get();
 
       List<Map<String, dynamic>> dist = querySnapshot.docs
           .map((doc) => {
@@ -191,7 +171,7 @@ class _SignUpState extends State<SignUp> {
   @override
   void initState() {
     super.initState();
-    fetchState();
+    fetchDistrict();
   }
 
   @override
@@ -483,72 +463,10 @@ class _SignUpState extends State<SignUp> {
                                     style: TextStyle(color: Colors.white)),
                               ],
                             ),
-                            Row(
-                              children: [
-                                Radio<String>(
-                                  fillColor:
-                                      MaterialStatePropertyAll(Colors.white),
-                                  value: 'Others',
-                                  groupValue: selectedGender,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedGender = value!;
-                                    });
-                                  },
-                                ),
-                                const Text('Others',
-                                    style: TextStyle(color: Colors.white)),
-                              ],
-                            ),
+                           
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 50,
-                      ),
-
-                      DropdownButtonFormField<String>(
-                          dropdownColor: Color.fromARGB(220, 60, 87, 87),
-                          value: _selectedState,
-                          decoration: InputDecoration(
-                            label: const Text('State'),
-                            labelStyle:
-                                TextStyle(color: Colors.tealAccent.shade100),
-                            hintText: 'Select state',
-                            hintStyle: const TextStyle(
-                              color: Colors.white,
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.white, // Default border color
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.white, // Default border color
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedState = newValue!;
-                              fetchDistrict(newValue!);
-                            });
-                          },
-                          isExpanded: true,
-                          items: state.map<DropdownMenuItem<String>>(
-                          (Map<String, dynamic> st) {
-                            return DropdownMenuItem<String>(
-                              value: st['id'],
-                              child: Text(st['state'],style:TextStyle(color: Colors.tealAccent.shade100),),
-                            );
-                          },
-                        ).toList(),
-                      ),
-
-                        
                       SizedBox(
                         height: 50,
                       ),
@@ -735,4 +653,3 @@ class _SignUpState extends State<SignUp> {
     );
   }
 }
- 

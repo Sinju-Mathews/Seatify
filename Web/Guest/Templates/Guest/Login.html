@@ -1,5 +1,5 @@
 <html>
-
+    {% load static %}
 <head>
     <title>
         Login
@@ -10,23 +10,23 @@
     <form method="post">
         {% csrf_token %}
         <center>
-            <table border="1" rules="none">
+            <div class="container">
+    <div class="logo">
+        <img src="logo-image.jpg" alt="Seatify Logo"> <!-- Replace 'logo-image.jpg' with your logo path -->
+        <h2>Seatify</h2>
+    </div>
 
-                <tr>
-                    <td>Email</td>
-                    <td><input type="email" name="txtsname" placeholder="Enter email" required="required"></td>
-                </tr>
-                <tr>
-                    <td>Password</td>
-                    <td><input type="password" name="txtpwd"></td>
-                </tr>
+    <div class="form-group">
+        <input type="email" name="txtsname" placeholder="Enter email" required="required">
+    </div>
+    <div class="form-group">
+        <input type="password" name="txtpwd" placeholder="Password">
+    </div>
 
-                <tr>
-                    <td colspan="2" align="center">
-                        <input type="submit" name="btnsubmit" value="Login">
-                    </td>
-                </tr>
-            </table>
+    <div class="form-group">
+        <input type="submit" name="btnsubmit" value="Login" class="btn-submit">
+    </div>
+</div>
         </center>
     </form>
     {% if msg %}
